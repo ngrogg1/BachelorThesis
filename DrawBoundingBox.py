@@ -6,9 +6,9 @@ i = 0
 k = 0
 
 while i < len(data)/2:
-    x1l, y1l, w1, h1 = data[0][k], data[1][k], data[2][k], data[3][k]
+    x_center_l, y_center_l, w1, h1 = data[0][k], data[1][k], data[2][k], data[3][k]
     k += 1
-    x1r, y1r, w2, h2 = data[0][k], data[1][k], data[2][k], data[3][k]
+    x_center_r, y_center_r, w2, h2 = data[0][k], data[1][k], data[2][k], data[3][k]
     k += 1
 
     #Loading image:
@@ -17,21 +17,25 @@ while i < len(data)/2:
     img_l = cv2.resize(img_l,(0,0), fx=0.5, fy=0.5)
     img_r = cv2.resize(img_r, (0, 0), fx=0.5, fy=0.5)
 
-    x1l = int(x1l * img_l.shape[1])
-    x2l = int(x1l + w1 * img_l.shape[1])
-    y1l = int((1-y1l) * img_l.shape[0])
-    y2l = int(y1l - h1 * img_l.shape[0])
-    print(x1l, y1l, x2l, y2l)
+    x1_l = int((x_center_l - w1/2) * img_l.shape[1])
+    x2_l = int(x1_l + w1 * img_l.shape[1])
+    y1_l = int((y_center_l + h1/2) * img_l.shape[0])
+    y2_l = int(y1_l - h1 * img_l.shape[0])
+    print(x1_l, y1_l, x2_l, y2_l)
 
-    x1r = int(x1r * img_r.shape[1])
-    x2r = int(x1r + w2 * img_r.shape[1])
-    y1r = int((1 - y1r) * img_r.shape[0])
-    y2r = int(y1r - h2 * img_r.shape[0])
-    print(x1r, y1r, x2r, y2r)
+    x1_r = int((x_center_r - w2/2) * img_r.shape[1])
+    x2_r = int(x1_r + w2 * img_r.shape[1])
+    y1_r = int((y_center_r + h2/2) * img_r.shape[0])
+    y2_r = int(y1_r - h2 * img_r.shape[0])
+    print(x1_r, y1_r, x2_r, y2_r)
 
-    #draw rectangles:
-    img_l = cv2.rectangle(img_l, (x1l,y1l), (x2l,y2l), (255, 0, 0), 2) #blue
-    img_r = cv2.rectangle(img_r, (x1r, y1r), (x2r, y2r), (255, 0, 0), 2)  # blue
+    # draw rectangles:
+    img_l = cv2.rectangle(img_l, (x1_l,y1_l), (x2_l,y2_l), (255, 0, 0), 2) # blue
+    img_r = cv2.rectangle(img_r, (x1_r, y1_r), (x2_r, y2_r), (255, 0, 0), 2)  # blue
+
+    # draw center point
+    img_l = cv2.circle(img_l, (int(x_center_l * img_l.shape[1]), int(y_center_l * img_l.shape[0])), 4, (0, 0, 255), -1) # red
+    img_r = cv2.circle(img_r, (int(x_center_r * img_r.shape[1]), int(y_center_r * img_r.shape[0])), 4, (0, 0, 255), -1) # red
 
     cv2.imshow('left', img_l)
     cv2.imshow('right', img_r)
