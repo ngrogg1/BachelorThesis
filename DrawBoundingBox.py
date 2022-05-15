@@ -1,53 +1,41 @@
 import pandas as pd
 import cv2
 
-
 data = pd.read_csv('data/yolo.txt',delimiter=" ", header = None)
-x1,y1,w,h = data[0][2], data[1][2], data[2][2], data[3][2]
-# x1,y1,w,h = data[0][3], data[1][3], data[2][3], data[3][3]
-print(data)
+i = 0
+k = 0
 
-#Loading image:
-img = cv2.imread('data/artificial_images/car_000002_left.png', -1)
-# img = cv2.imread('data/artificial_images/car_000002_right.png', -1)
-img = cv2.resize(img,(0,0), fx=0.5, fy=0.5)
+while i < len(data)/2:
+    x1l, y1l, w1, h1 = data[0][k], data[1][k], data[2][k], data[3][k]
+    k += 1
+    x1r, y1r, w2, h2 = data[0][k], data[1][k], data[2][k], data[3][k]
+    k += 1
 
-x1 = int(x1 * img.shape[1])
-x2 = int(x1 + w * img.shape[1])
-y1 = int((1-y1) * img.shape[0])
-y2 = int(y1 - h * img.shape[0])
-print(x1, y1, x2 ,y2)
+    #Loading image:
+    img_l = cv2.imread('data/artificial_images/car_' + f'{str(i + 1).zfill(6)}' + '_left.png', -1)
+    img_r = cv2.imread('data/artificial_images/car_' + f'{str(i + 1).zfill(6)}' + '_right.png', -1)
+    img_l = cv2.resize(img_l,(0,0), fx=0.5, fy=0.5)
+    img_r = cv2.resize(img_r, (0, 0), fx=0.5, fy=0.5)
 
-#draw rectangles:
-img = cv2.rectangle(img, (x1,y1), (x2,y2), (255, 0, 0), 2) #blue
+    x1l = int(x1l * img_l.shape[1])
+    x2l = int(x1l + w1 * img_l.shape[1])
+    y1l = int((1-y1l) * img_l.shape[0])
+    y2l = int(y1l - h1 * img_l.shape[0])
+    print(x1l, y1l, x2l, y2l)
 
-#draw circles:
-img = cv2.circle(img, (x1,y1), 5, (0, 0, 255), -1) #red
-img = cv2.circle(img, (x2,y2), 5, (0, 255, 0), -1) #green
+    x1r = int(x1r * img_r.shape[1])
+    x2r = int(x1r + w2 * img_r.shape[1])
+    y1r = int((1 - y1r) * img_r.shape[0])
+    y2r = int(y1r - h2 * img_r.shape[0])
+    print(x1r, y1r, x2r, y2r)
 
-cv2.imshow('frame', img)
-cv2.waitKey(0)
+    #draw rectangles:
+    img_l = cv2.rectangle(img_l, (x1l,y1l), (x2l,y2l), (255, 0, 0), 2) #blue
+    img_r = cv2.rectangle(img_r, (x1r, y1r), (x2r, y2r), (255, 0, 0), 2)  # blue
+
+    cv2.imshow('left', img_l)
+    cv2.imshow('right', img_r)
+    if cv2.waitKey(4000) == ord('q'):
+        break
+    i +=1
 cv2.destroyAllWindows()
-
-
-
-
-
-# import matplotlib.pyplot as plt
-# from matplotlib.patches import Rectangle
-# from PIL import Image
-# x = (x1+x2)/2
-# y = (y1+y2)/2
-# # Display the image
-# img = Image.open('data/artificial_images/car_000002_right.png')
-# width, height =img.size
-# x = x1 * width
-# y = (1-y2) * height
-# w = (x2-x1) * width
-# h = (y2-y1) * height
-# plt.imshow(img)
-#
-# # Add the patch to the Axes
-# plt.gca().add_patch(Rectangle((x,y),w,h,linewidth=1,edgecolor='r',facecolor='none'))
-#
-# plt.show()
