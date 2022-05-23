@@ -1,14 +1,17 @@
 import pandas as pd
 import cv2
+import os
 
-data = pd.read_csv('data/yolo.txt',delimiter=" ", header = None)
+length = len(os.listdir("data/labels/"))-1
 i = 0
 k = 0
 
-while i < len(data)/2:
-    x_center_l, y_center_l, w1, h1 = data[0][k], data[1][k], data[2][k], data[3][k]
+while i < length/2:
+    data = pd.read_csv('data/labels/'+ f'car_{str(i+1).zfill(6)}' +"_left" + ".txt", delimiter=" ", header=None)
+    _, x_center_l, y_center_l, w1, h1 = data[0], data[1], data[2], data[3], data[4]
     k += 1
-    x_center_r, y_center_r, w2, h2 = data[0][k], data[1][k], data[2][k], data[3][k]
+    data = pd.read_csv('data/labels/' + f'car_{str(i + 1).zfill(6)}' + "_right" + ".txt", delimiter=" ", header=None)
+    _, x_center_r, y_center_r, w2, h2 = data[0], data[1], data[2], data[3], data[4]
     k += 1
 
     #Loading image:
@@ -37,9 +40,10 @@ while i < len(data)/2:
     img_l = cv2.circle(img_l, (int(x_center_l * img_l.shape[1]), int(y_center_l * img_l.shape[0])), 4, (0, 0, 255), -1) # red
     img_r = cv2.circle(img_r, (int(x_center_r * img_r.shape[1]), int(y_center_r * img_r.shape[0])), 4, (0, 0, 255), -1) # red
 
-    cv2.imshow('left', img_l)
-    cv2.imshow('right', img_r)
+    cv2.imshow('car_' + f'{str(i + 1).zfill(6)}' + '_left.png', img_l)
+    cv2.imshow('car_' + f'{str(i + 1).zfill(6)}' + '_right.png', img_r)
     if cv2.waitKey(4000) == ord('q'):
         break
+    cv2.destroyAllWindows()
     i +=1
 cv2.destroyAllWindows()
