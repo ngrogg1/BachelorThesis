@@ -100,7 +100,7 @@ def minxmaxycorner(corners, ids):
 arucoDict = aruco.Dictionary_get(aruco.DICT_5X5_1000)
 arucoParams = aruco.DetectorParameters_create()
 
-# Matrices for undistortion of frames, which must be computed beforehand with the CameraCalibration script
+# Matrices for undistortion of frames, which must be computed beforehand with the Mono_Calibration script
 mtx = np.load('CalibrationOutput/mtx.npy')
 dist = np.load('CalibrationOutput/dist.npy')
 

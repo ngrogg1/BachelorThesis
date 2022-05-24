@@ -21,7 +21,7 @@ for fname in images:
 
     if len(res[0])>0:
         res2 = cv2.aruco.interpolateCornersCharuco(res[0],res[1],gray,board)
-        if res2[1] is not None and res2[2] is not None: # and len(res2[1])>10 and decimator%3==0 and res2[0] > 12:
+        if res2[1] is not None and res2[2] is not None:
             allCorners.append(res2[1])
             allIds.append(res2[2])
 
@@ -33,10 +33,10 @@ for fname in images:
     decimator+=1
     print(decimator)
 
-imsize = gray.shape
+imsize = cv2.imread(os.path.join('Frames', images[0])).shape[:2]
 
 
-_, cameraMatrix, distCoeffs, rvecs, tvecs = cv2.aruco.calibrateCameraCharuco(allCorners,allIds,board,imsize,None,None)
+_, cameraMatrix, distCoeffs, rvecs, tvecs = cv2.aruco.calibrateCameraCharuco(allCorners, allIds, board, imsize, None, None)
 
 print(cameraMatrix)
 print(distCoeffs)
