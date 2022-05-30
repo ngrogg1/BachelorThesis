@@ -56,7 +56,7 @@ for frame_name_left, frame_name_right in zip(images_left, images_right):
 
             # Saving the images with the detected markers for inspection
             cv2.aruco.drawDetectedMarkers(gray_left, res_left[0], res_left[1])
-            cv2.imwrite(path + 'calibration_output_mono/left_camera' + frame_name_left, gray_left)
+            cv2.imwrite(path + 'calibration_output_mono/left_camera/' + frame_name_left, gray_left)
 
     # If there are more than 4 markers the function calibrateCameraCharuco can be executed, so we have
     # to make sure there are more 4 markers (more than 16 corners)
@@ -71,7 +71,7 @@ for frame_name_left, frame_name_right in zip(images_left, images_right):
 
             # Saving the images with the detected markers for inspection
             cv2.aruco.drawDetectedMarkers(gray_right, res_right[0], res_right[1])
-            cv2.imwrite(path + 'calibration_output_mono/right_camera' + frame_name_right, gray_right)
+            cv2.imwrite(path + 'calibration_output_mono/right_camera/' + frame_name_right, gray_right)
 
     # Log progress every 20 processed images
     if decimator % 20 == 0 and 0 < decimator < len(images_left) or decimator == len(images_left):
