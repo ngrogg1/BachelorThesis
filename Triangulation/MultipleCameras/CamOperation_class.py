@@ -4,7 +4,7 @@ import threading
 import msvcrt
 import _tkinter
 import tkinter.messagebox
-from tkinter import *
+from tkinter import * 
 from tkinter.messagebox import *
 import tkinter as tk
 import numpy as np
@@ -19,7 +19,8 @@ from PIL import Image,ImageTk
 from ctypes import *
 from tkinter import ttk
 
-sys.path.append("../MvImport")
+
+sys.path.append("MvImport")
 from MvCameraControl_class import *
 
 def Async_raise(tid, exctype):
@@ -46,7 +47,7 @@ class CameraOperation():
         self.st_device_list = st_device_list
         self.n_connect_num = n_connect_num
         self.b_open_device = b_open_device
-        self.b_start_grabbing = b_start_grabbing
+        self.b_start_grabbing = b_start_grabbing 
         self.b_thread_closed = b_thread_closed
         self.st_frame_info = st_frame_info
         self.b_exit = b_exit
@@ -68,7 +69,7 @@ class CameraOperation():
             digit = num % 16
             hexStr = chaDic.get(digit, str(digit)) + hexStr
             num //= 16
-        hexStr = chaDic.get(num, str(num)) + hexStr
+        hexStr = chaDic.get(num, str(num)) + hexStr   
         return hexStr
 
 
@@ -91,28 +92,18 @@ class CameraOperation():
             self.b_open_device = True
             self.b_thread_closed = False
 
-            # ch:探测网络最佳包大小(只对GigE相机有效) | en:Detection network optimal package size(It only works for the GigE camera)
-            if stDeviceList.nTLayerType == MV_GIGE_DEVICE:
-                nPacketSize = self.obj_cam.MV_CC_GetOptimalPacketSize()
-                if int(nPacketSize) > 0:
-                    ret = self.obj_cam.MV_CC_SetIntValue("GevSCPSPacketSize",nPacketSize)
-                    if ret != 0:
-                        print ("warning: set packet size fail! ret[0x%x]" % ret)
-                else:
-                    print ("warning: set packet size fail! ret[0x%x]" % nPacketSize)
-
             stBool = c_bool(False)
             ret =self.obj_cam.MV_CC_GetBoolValue("AcquisitionFrameRateEnable", stBool)
             if ret != 0:
-                print ("get acquisition frame rate enable fail! ret[0x%x]" % ret)
+                print("get acquisition frame rate enable fail! ret[0x%x]" % ret)
 
             # ch:设置触发模式为off | en:Set trigger mode as off
             ret = self.obj_cam.MV_CC_SetEnumValueByString("TriggerMode", "Off")
             if ret != 0:
-                print ("set trigger mode fail! ret[0x%x]" % ret)
+                print("set trigger mode fail! ret[0x%x]" % ret)
             return 0
 
-    def Start_grabbing(self,index,root,panel,lock, save_img = False):
+    def Start_grabbing(self, index, lock, barrier):
         if False == self.b_start_grabbing and True == self.b_open_device:
             self.b_exit = False
             ret = self.obj_cam.MV_CC_StartGrabbing()
@@ -121,15 +112,16 @@ class CameraOperation():
                 return ret
             self.b_start_grabbing = True
             try:
-                self.h_thread_handle = threading.Thread(target=CameraOperation.Work_thread, args=(self,index,root,panel,lock,save_img))
+                self.h_thread_handle = threading.Thread(target=CameraOperation.Work_thread, args=(self, index, lock, barrier))
                 self.h_thread_handle.start()
                 self.b_thread_closed = True
             except:
-                tkinter.messagebox.showerror('show error','error: unable to start thread')
+                print('show error', 'error: unable to start thread')
                 False == self.b_start_grabbing
             return ret
 
     def Stop_grabbing(self):
+
         if True == self.b_start_grabbing and self.b_open_device == True:
             #退出线程 | en:quit thread
             ret = 0
@@ -139,11 +131,11 @@ class CameraOperation():
             ret = self.obj_cam.MV_CC_StopGrabbing()
             if ret != 0:
                 self.b_start_grabbing = True
-                self.b_exit  = False
+                self.b_exit = False
                 return ret
             self.b_start_grabbing = False
-            self.b_exit  = True
-            return ret
+            self.b_exit = True
+            return ret     
 
     def Close_device(self):
         if True == self.b_open_device:
@@ -154,31 +146,31 @@ class CameraOperation():
             ret = self.obj_cam.MV_CC_StopGrabbing()
             ret = self.obj_cam.MV_CC_CloseDevice()
             return ret
-
+                
         # ch:销毁句柄 | Destroy handle
         self.obj_cam.MV_CC_DestroyHandle()
         self.b_open_device = False
         self.b_start_grabbing = False
         self.b_exit  = True
 
-    def Set_trigger_mode(self,strMode):
-        if True == self.b_open_device:
-            if "continuous" == strMode:
-                ret = self.obj_cam.MV_CC_SetEnumValueByString("TriggerMode","Off")
+    def Set_trigger_mode(self, strMode):
+        if self.b_open_device:
+            if "continuous" == strMode: 
+                ret = self.obj_cam.MV_CC_SetEnumValueByString("TriggerMode", "Off")
                 if ret != 0:
                     return ret
             if "triggermode" == strMode:
-                ret = self.obj_cam.MV_CC_SetEnumValueByString("TriggerMode","On")
+                ret = self.obj_cam.MV_CC_SetEnumValueByString("TriggerMode", "On")
                 if ret != 0:
                     return ret
-                ret = self.obj_cam.MV_CC_SetEnumValueByString("TriggerSource","Software")
+                ret = self.obj_cam.MV_CC_SetEnumValueByString("TriggerSource", "Software")
                 if ret != 0:
                     return ret
                 return ret
 
-    def Trigger_once(self,nCommand):
-        if True == self.b_open_device:
-            if 1 == nCommand:
+    def Trigger_once(self, nCommand):
+        if self.b_open_device:
+            if nCommand == 1:
                 ret = self.obj_cam.MV_CC_SetCommandValue("TriggerSoftware")
                 return ret
 
@@ -207,8 +199,8 @@ class CameraOperation():
             ret = self.obj_cam.MV_CC_SetFloatValue("AcquisitionFrameRate",float(frameRate))
             return ret
 
-    def Work_thread(self,index,root,panel,lock, save_img):
-        stOutFrame = MV_FRAME_OUT()
+    def Work_thread(self, index, lock, barrier):
+        stOutFrame = MV_FRAME_OUT() 
         memset(byref(stOutFrame), 0, sizeof(stOutFrame))
         img_buff = None
         buf_cache = None
@@ -220,18 +212,15 @@ class CameraOperation():
                     buf_cache = (c_ubyte * stOutFrame.stFrameInfo.nFrameLen)()
                 self.st_frame_info = stOutFrame.stFrameInfo
                 cdll.msvcrt.memcpy(byref(buf_cache), stOutFrame.pBufAddr, self.st_frame_info.nFrameLen)
-                print ("Camera[%d]:get one frame: Width[%d], Height[%d], nFrameNum[%d]"  % (index,self.st_frame_info.nWidth, self.st_frame_info.nHeight, self.st_frame_info.nFrameNum))
+                print("Camera[%d]: Get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (index, self.st_frame_info.nWidth, self.st_frame_info.nHeight, self.st_frame_info.nFrameNum))
                 self.n_save_image_size = self.st_frame_info.nWidth * self.st_frame_info.nHeight * 3 + 2048
                 if img_buff is None:
                     img_buff = (c_ubyte * self.n_save_image_size)()
-                if save_img:
-                    self.Save_jpg(buf_cache, index)
-
             else:
-                print("Camera[" + str(index) + "]:no data, ret = "+self.To_hex_str(ret))
+                print("Camera[" + str(index) + "]: No data, ret = "+self.To_hex_str(ret))
                 if self.b_exit == True:
                     break
-                continue
+                continue # return self.Work_thread(index, lock)
 
             #转换像素结构体赋值 | en:convert pixel parameter/type
             stConvertParam = MV_CC_PIXEL_CONVERT_PARAM()
@@ -243,17 +232,18 @@ class CameraOperation():
             stConvertParam.enSrcPixelType = self.st_frame_info.enPixelType
 
             # Another possible way to show image, check here : /BasicDemo/try/pythoncv2.py
-            # data=np.frombuffer(buf_cache, count=int(stOutFrame.stFrameInfo.nWidth * stOutFrame.stFrameInfo.nHeight),dtype=np.uint8) which is our image
-            # image_control(data=data, stFrameInfo=stOutFrame.stFrameInfo)
+            def image_show(image, ind):
+                image = cv2.resize(image, (600, 400), interpolation=cv2.INTER_AREA)
+                cv2.imshow("frame" + ind, image)
+                k = cv2.waitKey(1) & 0xff
 
-            # def image_show(image):
-            #     image = cv2.resize(image, (600, 400), interpolation=cv2.INTER_AREA)
-            #     cv2.imshow('fgmask', image)
-            #     k = cv2.waitKey(1) & 0xff
+            def image_control(data, stFrameInfo, ind):
+                image = data.reshape((stFrameInfo.nHeight, stFrameInfo.nWidth, 3))
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                #image_show(image, ind)
 
-            # def image_control(data , stFrameInfo):
-            #     image = data.reshape((stFrameInfo.nHeight, stFrameInfo.nWidth))
-
+                cv2.imwrite('C:/Users/Nic/Documents/GitHub/BachelorThesis/data/live/frame_' + ind + '.jpg', image) # + str(stFrameInfo.nFrameNum)
+                return image
 
             # RGB直接显示 | en:direct show RGB
             if PixelType_Gvsp_RGB8_Packed == self.st_frame_info.enPixelType:
@@ -265,35 +255,30 @@ class CameraOperation():
                 stConvertParam.nDstBufferSize = nConvertSize
                 ret = self.obj_cam.MV_CC_ConvertPixelType(stConvertParam)
                 if ret != 0:
-                    continue
+                    continue # return self.Work_thread(index, lock)
                 cdll.msvcrt.memcpy(byref(img_buff), stConvertParam.pDstBuffer, nConvertSize)
                 numArray = CameraOperation.Color_numpy(self,img_buff,self.st_frame_info.nWidth,self.st_frame_info.nHeight)
 
-            #合并OpenCV到Tkinter界面中 | en:combine OpenCV to Tkinter interface(show the image in our Tk interface)
-            current_image = Image.fromarray(numArray).resize((500, 500), Image.ANTIALIAS)
-            lock.acquire()  #加锁 | en: add lock
-            imgtk = ImageTk.PhotoImage(image=current_image, master=root)
-            panel.imgtk = imgtk
-            panel.config(image=imgtk)
-            root.obr = imgtk
-            lock.release() #释放锁 | en: release lock
+            if index == 0:
+                image_control(data=numArray, stFrameInfo=stOutFrame.stFrameInfo, ind="left") #, self.Work_thread(index, lock)
+
+            else:
+                image_control(data=numArray, stFrameInfo=stOutFrame.stFrameInfo, ind="right") #, self.Work_thread(index, lock)
+
             nRet = self.obj_cam.MV_CC_FreeImageBuffer(stOutFrame)
             if self.b_exit == True:
                 if img_buff is not None:
                     del img_buff
+                cv2.destroyAllWindows()
                 break
+            barrier.wait()
 
-    def Save_jpg(self,buf_cache, index):
+
+    def Save_jpg(self, buf_cache):
         if(None == buf_cache):
-            print("buf_cache is None")
             return
         self.buf_save_image = None
-        if index == 0:
-            file_path = "C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/frames_stereo/frames_left/frame_" + str(self.st_frame_info.nFrameNum) + "_left.jpg"
-        else:
-            file_path = "C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/frames_stereo/frames_right/frame_" + str(self.st_frame_info.nFrameNum) + "_right.jpg"
-
-        print(file_path)
+        file_path = str(self.st_frame_info.nFrameNum) + ".jpg"
         self.n_save_image_size = self.st_frame_info.nWidth * self.st_frame_info.nHeight * 3 + 2048
         if self.buf_save_image is None:
             self.buf_save_image = (c_ubyte * self.n_save_image_size)()
@@ -305,10 +290,10 @@ class CameraOperation():
         stParam.nHeight     = self.st_frame_info.nHeight                                   # ch:相机对应的高 | en:Height
         stParam.nDataLen    = self.st_frame_info.nFrameLen
         stParam.pData       = cast(buf_cache, POINTER(c_ubyte))
-        stParam.pImageBuffer=  cast(byref(self.buf_save_image), POINTER(c_ubyte))
+        stParam.pImageBuffer=  cast(byref(self.buf_save_image), POINTER(c_ubyte)) 
         stParam.nBufferSize = self.n_save_image_size                                 # ch:存储节点的大小 | en:Buffer node size
         stParam.nJpgQuality = 80;                                                    # ch:jpg编码，仅在保存Jpg图像时有效。保存BMP时SDK内忽略该参数 | en: jpg code, only valid when saving jpg image, ignore it when using BMP
-        return_code = self.obj_cam.MV_CC_SaveImageEx2(stParam)
+        return_code = self.obj_cam.MV_CC_SaveImageEx2(stParam)            
 
         if return_code != 0:
             tkinter.messagebox.showerror('show error','save jpg fail! ret = '+self.To_hex_str(return_code))
@@ -320,10 +305,7 @@ class CameraOperation():
             cdll.msvcrt.memcpy(byref(img_buff), stParam.pImageBuffer, stParam.nImageLen)
             file_open.write(img_buff)
             self.b_save_jpg = False
-            if index == 0:
-                print("Successfully saved jpg for left camera!")
-            else:
-                print("Successfully saved jpg for right camera!")
+            tkinter.messagebox.showinfo('show info','save jpg success!')
         except:
             self.b_save_jpg = False
             raise Exception("get one frame failed:%s" % e.message)
@@ -336,7 +318,7 @@ class CameraOperation():
         if(0 == buf_cache):
             return
         self.buf_save_image = None
-        file_path = str(self.st_frame_info.nFrameNum) + ".bmp"
+        file_path = str(self.st_frame_info.nFrameNum) + ".bmp"    
         self.n_save_image_size = self.st_frame_info.nWidth * self.st_frame_info.nHeight * 3 + 2048
         if self.buf_save_image is None:
             self.buf_save_image = (c_ubyte * self.n_save_image_size)()
@@ -348,9 +330,9 @@ class CameraOperation():
         stParam.nHeight     = self.st_frame_info.nHeight                                   # ch:相机对应的高 | en:Height
         stParam.nDataLen    = self.st_frame_info.nFrameLen
         stParam.pData       = cast(buf_cache, POINTER(c_ubyte))
-        stParam.pImageBuffer=  cast(byref(self.buf_save_image), POINTER(c_ubyte))
+        stParam.pImageBuffer=  cast(byref(self.buf_save_image), POINTER(c_ubyte)) 
         stParam.nBufferSize = self.n_save_image_size                                 # ch:存储节点的大小 | en:Buffer node size
-        return_code = self.obj_cam.MV_CC_SaveImageEx2(stParam)
+        return_code = self.obj_cam.MV_CC_SaveImageEx2(stParam)            
         if return_code != 0:
             tkinter.messagebox.showerror('show error','save bmp fail! ret = '+self.To_hex_str(return_code))
             self.b_save_bmp = False
@@ -373,7 +355,7 @@ class CameraOperation():
     def Mono_numpy(self,data,nWidth,nHeight):
         data_ = np.frombuffer(data, count=int(nWidth * nHeight), dtype=np.uint8, offset=0)
         data_mono_arr = data_.reshape(nHeight, nWidth)
-        numArray = np.zeros([nHeight, nWidth, 1],"uint8")
+        numArray = np.zeros([nHeight, nWidth, 1],"uint8") 
         numArray[:, :, 0] = data_mono_arr
         return numArray
 

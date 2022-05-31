@@ -8,10 +8,10 @@ path = 'C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/'
 
 # Matrices for undistortion of frames, which must be computed beforehand with the Mono_Calibration script
 # for both cameras
-mtx_left = np.load(path + 'Camera_intrinsics/mtx_left.npy')
-dist_left = np.load(path + 'Camera_intrinsics/dist_left.npy')
 mtx_right = np.load(path + 'Camera_intrinsics/mtx_left.npy')
 dist_right = np.load(path + 'Camera_intrinsics/dist_left.npy')
+mtx_left = np.load(path + 'Camera_intrinsics/mtx_left.npy')
+dist_left = np.load(path + 'Camera_intrinsics/dist_left.npy')
 
 # Images for stereo calibration have to be synchronized!
 images_left = os.listdir(path + 'frames_stereo/frames_left')

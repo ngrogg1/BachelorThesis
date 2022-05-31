@@ -91,20 +91,28 @@ print("Processing finished for both cameras! \n")
 # Get the imagesize of the pictures
 imsize = cv2.imread(os.path.join(path, 'frames_mono/frames_left/', images_left[0])).shape[:2]
 
+print("Start calibrating left camera...")
+
 # To see how long the calibration of the camera takes
 start = time.time()
 
 # Calibration of the Camera
-print("Start calibrating camera...")
 _, cameraMatrix_left, distCoeffs_left, _, _ = cv2.aruco.calibrateCameraCharuco(allCorners_left,
                                                                                allIds_left, board,
                                                                                imsize, None, None)
+print(f'Calibration for left camera finished in {round((time.time() - start) / 60, 1)} minutes!')
 
+print("Start calibrating right camera...")
+
+# To see how long the calibration of the camera takes
+start = time.time()
+
+# Calibration of the Camera
 _, cameraMatrix_right, distCoeffs_right, _, _ = cv2.aruco.calibrateCameraCharuco(allCorners_right,
                                                                                  allIds_right,
                                                                                  board,
                                                                                  imsize, None, None)
-print(f'Calibration finished in {round((time.time() - start) / 60, 1)} minutes!')
+print(f'Calibration for right camera finished in {round((time.time() - start) / 60, 1)} minutes!')
 
 # Show the results of the Calibration
 print("Left Camera Matrix: \n", cameraMatrix_left, "\n")

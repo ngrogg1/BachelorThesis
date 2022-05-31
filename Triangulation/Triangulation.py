@@ -65,7 +65,7 @@ dist_right = np.load(data_path + 'Calibration/Camera_intrinsics/dist_right.npy')
 
 # Camera focal length and the baseline
 focal_length = 0.016
-baseline = 0.15
+baseline = 0.16
 
 # Size of the images
 img_size = cv2.imread('C:/Users/Nic/Documents/GitHub/BachelorThesis/data/test/frame_0_left.jpg').shape[:2]
@@ -85,16 +85,18 @@ frame_right = cv2.imread('C:/Users/Nic/Documents/GitHub/BachelorThesis/data/test
 # frame_left = cv2.imread('C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Blender/images/car_000001_left.jpg', -1)
 # frame_right = cv2.imread('C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Blender/images/car_000001_right.jpg', -1)
 
-# frame_undistorted_left, frame_undistorted_right, P_1, P_2 = undistort_rectify_frames(mtx_left, dist_left, mtx_right,
-#                                                                                    dist_right, img_size, R, T,
-#                                                                                    frame_left, frame_right)
+frame_undistorted_left, frame_undistorted_right, P_1, P_2 = undistort_rectify_frames(mtx_left, dist_left, mtx_right,
+                                                                                   dist_right, img_size, R, T,
+                                                                                   frame_left, frame_right)
 
 # Load the yolov5 model which with custom pretrained weights, trained on the blender images
 yolo = torch.hub.load('ultralytics/yolov5', 'custom', path='C:/Users/Nic/Documents/GitHub/yolov5/runs/train/exp/weights/last.pt', force_reload=True)
 
 # Make a forward pass to detect objects on the rectified and undistorted frames
-result_left = yolo(frame_left)
-result_right = yolo(frame_right)
+# result_left = yolo(frame_left)
+# result_right = yolo(frame_right)
+result_left = yolo(frame_undistorted_left)
+result_right = yolo(frame_undistorted_right)
 
 center_x_l, center_y_l, center_x_r, center_y_r = get_imagepoints(result_left, result_right)
 
