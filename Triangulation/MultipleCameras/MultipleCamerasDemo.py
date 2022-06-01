@@ -9,6 +9,7 @@ import tkinter as tk
 import sys, os
 from tkinter import ttk
 import time
+import queue
 
 import cv2
 
@@ -72,12 +73,6 @@ def enum_devices(deviceList, devList, tlayerType):
 
 # ch:打开相机 | en:open device
 def open_device(deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devList):
-    # global deviceList
-    # global obj_cam_operation
-    # global b_is_run
-    # global nOpenDevSuccess
-    # global devList
-
     # Counter of how many cameras have been opened
     nOpenDevSuccess = 0
 
@@ -119,21 +114,17 @@ def open_device(deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devLis
     return deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devList
 
 # ch:开始取流 | en:Start grab image
-def start_grabbing(obj_cam_operation, nOpenDevSuccess, lock, barrier):
-    # global obj_cam_operation
-    # global nOpenDevSuccess
+def start_grabbing(obj_cam_operation, nOpenDevSuccess, lock, barrier, queue):
     ret = 0
     for i in range(0, nOpenDevSuccess):
         start = time.time()
-        ret = obj_cam_operation[i].Start_grabbing(i, lock, barrier)
+        ret = obj_cam_operation[i].Start_grabbing(i, lock, barrier, queue)
         if ret != 0:
             print('Error: Camera: ' + str(i) + ', start grabbing fail! ret = ' + To_hex_str(ret))
     return obj_cam_operation, nOpenDevSuccess
 
 # ch:停止取流 | en:Stop grab image
 def stop_grabbing(nOpenDevSuccess, obj_cam_operation):
-    # global nOpenDevSuccess
-    # global obj_cam_operation
     for i in range(0, nOpenDevSuccess):
         ret = obj_cam_operation[i].Stop_grabbing()
         if 0 != ret:
@@ -142,9 +133,6 @@ def stop_grabbing(nOpenDevSuccess, obj_cam_operation):
 
 # ch:关闭设备 | Close device
 def close_device(b_is_run, obj_cam_operation, nOpenDevSuccess):
-    # global b_is_run
-    # global obj_cam_operation
-    # global nOpenDevSuccess
     for i in range(0, nOpenDevSuccess):
         ret = obj_cam_operation[i].Close_device()
         if 0 != ret:
@@ -157,8 +145,7 @@ def close_device(b_is_run, obj_cam_operation, nOpenDevSuccess):
 
 # ch:设置触发模式 | en:set trigger mode
 def set_triggermode(obj_cam_operation, nOpenDevSuccess, model_val):
-    # global obj_cam_operation
-    # global nOpenDevSuccess
+
     strMode = model_val
     for i in range(0, nOpenDevSuccess):
         ret = obj_cam_operation[i].Set_trigger_mode(strMode)
@@ -168,9 +155,6 @@ def set_triggermode(obj_cam_operation, nOpenDevSuccess, model_val):
 
 # ch:设置触发命令 | en:set trigger software
 def trigger_once(triggercheck_val, obj_cam_operation, nOpenDevSuccess):
-    # global triggercheck_val
-    # global obj_cam_operation
-    # global nOpenDevSuccess
     nCommand = triggercheck_val
     for i in range(0, nOpenDevSuccess):
         ret = obj_cam_operation[i].Trigger_once(nCommand)
@@ -220,26 +204,37 @@ if __name__ == "__main__":
 
     barrier = threading.Barrier(3)
     lock = threading.Lock()
+    queue = queue.Queue()
+    frame_left = None
+    frame_right = None
     deviceList, devList, tlayerType = enum_devices(deviceList, devList, tlayerType)
     deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devList = open_device(deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devList)
     obj_cam_operation, nOpenDevSuccess = set_triggermode(obj_cam_operation, nOpenDevSuccess, model_val)
-    obj_cam_operation, nOpenDevSuccess = start_grabbing(obj_cam_operation, nOpenDevSuccess, lock, barrier)
+    obj_cam_operation, nOpenDevSuccess = start_grabbing(obj_cam_operation, nOpenDevSuccess, lock, barrier, queue)
     i = 1
     start = time.time()
     while True:
 
-        triggercheck_val, obj_cam_operation, nOpenDevSuccess = trigger_once(triggercheck_val, obj_cam_operation,
-                                                                            nOpenDevSuccess)
+        triggercheck_val, obj_cam_operation, nOpenDevSuccess = trigger_once(triggercheck_val, obj_cam_operation, nOpenDevSuccess)
 
         barrier.wait()
 
-        frame_left = cv2.imread('C:/Users/Nic/Documents/GitHub/BachelorThesis/data/live/frame_left.jpg', -1)
-        frame_right = cv2.imread('C:/Users/Nic/Documents/GitHub/BachelorThesis/data/live/frame_right.jpg', -1)
+        with lock:
+            for k in range(2):
+                ind = queue.get()
+                image = queue.get()
+
+                if ind == "left":
+                    frame_left = image
+                else:
+                    frame_right = image
+
         frame_left = cv2.resize(frame_left, (0,0), fx=0.25, fy=0.25)
         frame_right = cv2.resize(frame_right, (0,0), fx=0.25, fy=0.25)
 
         cv2.imshow("frame_left", frame_left)
         cv2.imshow("frame_right", frame_right)
+
         if cv2.waitKey(1) == ord('q'):
             with lock:
                 print("FPS = ", round(i/(time.time()-start),1))

@@ -103,7 +103,7 @@ class CameraOperation():
                 print("set trigger mode fail! ret[0x%x]" % ret)
             return 0
 
-    def Start_grabbing(self, index, lock, barrier):
+    def Start_grabbing(self, index, lock, barrier, queue):
         if False == self.b_start_grabbing and True == self.b_open_device:
             self.b_exit = False
             ret = self.obj_cam.MV_CC_StartGrabbing()
@@ -112,7 +112,7 @@ class CameraOperation():
                 return ret
             self.b_start_grabbing = True
             try:
-                self.h_thread_handle = threading.Thread(target=CameraOperation.Work_thread, args=(self, index, lock, barrier))
+                self.h_thread_handle = threading.Thread(target=CameraOperation.Work_thread, args=(self, index, lock, barrier, queue))
                 self.h_thread_handle.start()
                 self.b_thread_closed = True
             except:
@@ -199,7 +199,7 @@ class CameraOperation():
             ret = self.obj_cam.MV_CC_SetFloatValue("AcquisitionFrameRate",float(frameRate))
             return ret
 
-    def Work_thread(self, index, lock, barrier):
+    def Work_thread(self, index, lock, barrier, queue):
         stOutFrame = MV_FRAME_OUT() 
         memset(byref(stOutFrame), 0, sizeof(stOutFrame))
         img_buff = None
@@ -220,7 +220,7 @@ class CameraOperation():
                 print("Camera[" + str(index) + "]: No data, ret = "+self.To_hex_str(ret))
                 if self.b_exit == True:
                     break
-                continue # return self.Work_thread(index, lock)
+                continue
 
             #转换像素结构体赋值 | en:convert pixel parameter/type
             stConvertParam = MV_CC_PIXEL_CONVERT_PARAM()
@@ -231,19 +231,18 @@ class CameraOperation():
             stConvertParam.nSrcDataLen = self.st_frame_info.nFrameLen
             stConvertParam.enSrcPixelType = self.st_frame_info.enPixelType
 
-            # Another possible way to show image, check here : /BasicDemo/try/pythoncv2.py
-            def image_show(image, ind):
-                image = cv2.resize(image, (600, 400), interpolation=cv2.INTER_AREA)
-                cv2.imshow("frame" + ind, image)
-                k = cv2.waitKey(1) & 0xff
+            # # Another possible way to show image, check here : /BasicDemo/try/pythoncv2.py
+            # def image_show(image, ind):
+            #     image = cv2.resize(image, (600, 400), interpolation=cv2.INTER_AREA)
+            #     cv2.imshow("frame" + ind, image)
+            #     k = cv2.waitKey(1) & 0xff
 
             def image_control(data, stFrameInfo, ind):
                 image = data.reshape((stFrameInfo.nHeight, stFrameInfo.nWidth, 3))
                 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                #image_show(image, ind)
-
-                cv2.imwrite('C:/Users/Nic/Documents/GitHub/BachelorThesis/data/live/frame_' + ind + '.jpg', image) # + str(stFrameInfo.nFrameNum)
-                return image
+                with lock:
+                    queue.put(ind)
+                    queue.put(image)
 
             # RGB直接显示 | en:direct show RGB
             if PixelType_Gvsp_RGB8_Packed == self.st_frame_info.enPixelType:
@@ -255,15 +254,15 @@ class CameraOperation():
                 stConvertParam.nDstBufferSize = nConvertSize
                 ret = self.obj_cam.MV_CC_ConvertPixelType(stConvertParam)
                 if ret != 0:
-                    continue # return self.Work_thread(index, lock)
+                    continue
                 cdll.msvcrt.memcpy(byref(img_buff), stConvertParam.pDstBuffer, nConvertSize)
                 numArray = CameraOperation.Color_numpy(self,img_buff,self.st_frame_info.nWidth,self.st_frame_info.nHeight)
 
             if index == 0:
-                image_control(data=numArray, stFrameInfo=stOutFrame.stFrameInfo, ind="left") #, self.Work_thread(index, lock)
+                image_control(data=numArray, stFrameInfo=stOutFrame.stFrameInfo, ind="left")
 
             else:
-                image_control(data=numArray, stFrameInfo=stOutFrame.stFrameInfo, ind="right") #, self.Work_thread(index, lock)
+                image_control(data=numArray, stFrameInfo=stOutFrame.stFrameInfo, ind="right")
 
             nRet = self.obj_cam.MV_CC_FreeImageBuffer(stOutFrame)
             if self.b_exit == True:
