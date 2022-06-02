@@ -1,7 +1,7 @@
 # -- coding: utf-8 --
 import sys
 import threading
-from tkinter import * 
+from tkinter import *
 from tkinter.messagebox import *
 import _tkinter
 import tkinter.messagebox
@@ -10,26 +10,27 @@ import sys, os
 from tkinter import ttk
 import time
 import queue
-
+import numpy as np
+import torch
 import cv2
 
-sys.path.append("C:/Users/Nic/Documents/GitHub/BachelorThesis/Triangulation/MvImport")
 
+sys.path.append("../MvImport")
 from MvCameraControl_class import *
 from CamOperation_class import *
-from PIL import Image, ImageTk
+from PIL import Image,ImageTk
 
 
 def To_hex_str(num):
     chaDic = {10: 'a', 11: 'b', 12: 'c', 13: 'd', 14: 'e', 15: 'f'}
     hexStr = ""
     if num < 0:
-        num = num + 2**32
+        num = num + 2 ** 32
     while num >= 16:
         digit = num % 16
         hexStr = chaDic.get(digit, str(digit)) + hexStr
         num //= 16
-    hexStr = chaDic.get(num, str(num)) + hexStr   
+    hexStr = chaDic.get(num, str(num)) + hexStr
     return hexStr
 
 
@@ -70,6 +71,7 @@ def enum_devices(deviceList, devList, tlayerType):
             devList.append("USB[" + str(i) + "]" + str(strSerialNumber))
 
     return deviceList, devList, tlayerType
+
 
 # ch:打开相机 | en:open device
 def open_device(deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devList):
@@ -113,6 +115,7 @@ def open_device(deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devLis
 
     return deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devList
 
+
 # ch:开始取流 | en:Start grab image
 def start_grabbing(obj_cam_operation, nOpenDevSuccess, lock, barrier, queue):
     ret = 0
@@ -123,6 +126,7 @@ def start_grabbing(obj_cam_operation, nOpenDevSuccess, lock, barrier, queue):
             print('Error: Camera: ' + str(i) + ', start grabbing fail! ret = ' + To_hex_str(ret))
     return obj_cam_operation, nOpenDevSuccess
 
+
 # ch:停止取流 | en:Stop grab image
 def stop_grabbing(nOpenDevSuccess, obj_cam_operation):
     for i in range(0, nOpenDevSuccess):
@@ -130,6 +134,7 @@ def stop_grabbing(nOpenDevSuccess, obj_cam_operation):
         if 0 != ret:
             print('Error: Camera:' + str(i) + ', stop grabbing fail! ret = ' + To_hex_str(ret))
     return nOpenDevSuccess, obj_cam_operation
+
 
 # ch:关闭设备 | Close device
 def close_device(b_is_run, obj_cam_operation, nOpenDevSuccess):
@@ -145,13 +150,13 @@ def close_device(b_is_run, obj_cam_operation, nOpenDevSuccess):
 
 # ch:设置触发模式 | en:set trigger mode
 def set_triggermode(obj_cam_operation, nOpenDevSuccess, model_val):
-
     strMode = model_val
     for i in range(0, nOpenDevSuccess):
         ret = obj_cam_operation[i].Set_trigger_mode(strMode)
         if 0 != ret:
             print('Error: Camera:' + str(i) + ', set triggersource fail! ret = ' + To_hex_str(ret))
     return obj_cam_operation, nOpenDevSuccess
+
 
 # ch:设置触发命令 | en:set trigger software
 def trigger_once(triggercheck_val, obj_cam_operation, nOpenDevSuccess):
@@ -161,6 +166,7 @@ def trigger_once(triggercheck_val, obj_cam_operation, nOpenDevSuccess):
         if 0 != ret:
             print('Error: Camera:' + str(i) + ', set triggersoftware fail! ret = ' + To_hex_str(ret))
     return triggercheck_val, obj_cam_operation, nOpenDevSuccess
+
 
 # def get_parameter():  # Get frame rate, exposure time and gain for camera
 #     global obj_cam_operation
@@ -192,7 +198,83 @@ def trigger_once(triggercheck_val, obj_cam_operation, nOpenDevSuccess):
 #         if 0 != ret:
 #             tkinter.messagebox.showerror('show error', 'camera' + str(i) + 'set parameter fail!')
 
+
+def undistort_rectify_frames(mtx_left, dist_left, mtx_right, dist_right, img_size, R, T, frame_left, frame_right):
+    # Rectify the images, so that both are horizontally aligned
+    R1, R2, P1, P2, _, _, _ = cv2.stereoRectify(mtx_left, dist_left, mtx_right, dist_right, img_size, R, T, 1, (0, 0))
+    stereo_map_left = cv2.initUndistortRectifyMap(mtx_left, dist_left, R1, P1, img_size, cv2.CV_16SC2)
+    stereo_map_right = cv2.initUndistortRectifyMap(mtx_right, dist_right, R2, P2, img_size, cv2.CV_16SC2)
+
+    stereo_map_left_x = stereo_map_left[0]
+    stereo_map_left_y = stereo_map_left[1]
+
+    stereo_map_right_x = stereo_map_right[0]
+    stereo_map_right_y = stereo_map_right[1]
+
+    # Undistort and rectify images
+    frame_undistorted_l = cv2.remap(frame_left, stereo_map_left_x, stereo_map_left_y, cv2.INTER_LANCZOS4,
+                                    cv2.BORDER_CONSTANT, 0)
+    frame_undistorted_r = cv2.remap(frame_right, stereo_map_right_x, stereo_map_right_y, cv2.INTER_LANCZOS4,
+                                    cv2.BORDER_CONSTANT, 0)
+
+    return frame_undistorted_l, frame_undistorted_r, P1, P2
+
+
+def get_imagepoints(result_left, result_right):
+    # Get the center of the bounding boxes for both frames
+    df_left = result_left.pandas().xyxy[0].to_numpy()[0]
+    x_min_l, y_min_l, x_max_l, y_max_l = df_left[:4]
+    df_right = result_right.pandas().xyxy[0].to_numpy()[0]
+    x_min_r, y_min_r, x_max_r, y_max_r = df_right[:4]
+
+    center_x_left = int(x_min_l + (x_max_l - x_min_l) / 2)
+    center_y_left = int(y_min_l + (y_max_l - y_min_l) / 2)
+
+    center_x_right = int(x_min_r + (x_max_r - x_min_r) / 2)
+    center_y_right = int(y_min_r + (y_max_r - y_min_r) / 2)
+
+    return center_x_left, center_y_left, center_x_right, center_y_right
+
+
+def resize_dispwind(img_shape):
+    w, h = img_shape
+    h1 = int(w / 4)
+    w1 = int(h / 4)
+
+    cv2.namedWindow("frame_left", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("frame_left", w1, h1)
+
+    cv2.namedWindow("frame_right", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("frame_right", w1, h1)
+
+
 if __name__ == "__main__":
+    # Path to the data folder
+    data_path = 'C:/Users/Nic/Documents/GitHub/BachelorThesis/data/'
+
+    # Rotation and Translation Matrix which are computed in the Stereo_Calibration script
+    R = np.load(data_path + 'Calibration/Camera_extrinsics/rotation.npy')
+    T = np.load(data_path + 'Calibration/Camera_extrinsics/translation.npy')
+
+    # Camera intrinsics for both cameras
+    mtx_left = np.load(data_path + 'Calibration/Camera_intrinsics/mtx_left.npy')
+    dist_left = np.load(data_path + 'Calibration/Camera_intrinsics/dist_left.npy')
+    mtx_right = np.load(data_path + 'Calibration/Camera_intrinsics/mtx_right.npy')
+    dist_right = np.load(data_path + 'Calibration/Camera_intrinsics/dist_right.npy')
+
+    # RT matrix for the left camera is identity.
+    RT1 = np.concatenate([np.eye(3), [[0], [0], [0]]], axis=-1)
+    P1 = mtx_left @ RT1  # projection matrix for C1
+
+    # RT matrix for the right camera is the R and T obtained from stereo calibration.
+    RT2 = np.concatenate([R, T], axis=-1)
+    P2 = mtx_right @ RT2  # projection matrix for C2
+
+    # Load the yolov5 model which with custom pretrained weights, trained on the blender images
+    yolo = torch.hub.load('ultralytics/yolov5', 'custom',
+                          path='C:/Users/Nic/Documents/GitHub/yolov5/runs/train/exp/weights/last.pt', force_reload=True)
+
+    # Set variables for the capturing of the frames of both cameras
     deviceList = MV_CC_DEVICE_INFO_LIST()
     tlayerType = MV_GIGE_DEVICE | MV_USB_DEVICE
     obj_cam_operation = 0
@@ -202,23 +284,43 @@ if __name__ == "__main__":
     model_val = "triggermode"
     triggercheck_val = 1
 
+    # Create barriers, locks and queue to communicate between different threads
     barrier = threading.Barrier(3)
     lock = threading.Lock()
     queue = queue.Queue()
+
+    # Define the names of the frames
     frame_left = None
     frame_right = None
+
+    # Enumerate all cameras and get their information
     deviceList, devList, tlayerType = enum_devices(deviceList, devList, tlayerType)
-    deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devList = open_device(deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devList)
+
+    # Open the camera so that it is ready to start filming
+    deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devList = open_device(deviceList, obj_cam_operation,
+                                                                                    b_is_run, nOpenDevSuccess, devList)
+
+    # Set the mode of grabbing frames to triggermode, this means that every time the "trigger_once" function is called
+    # it will grab a new frame
     obj_cam_operation, nOpenDevSuccess = set_triggermode(obj_cam_operation, nOpenDevSuccess, model_val)
+
+    # Start the grabbing threads
     obj_cam_operation, nOpenDevSuccess = start_grabbing(obj_cam_operation, nOpenDevSuccess, lock, barrier, queue)
+
+    # Counters to calculate fps
     i = 1
     start = time.time()
+
+    # Start grabbing images and process them
     while True:
+        # grab one frame for both cameras (threads)
+        triggercheck_val, obj_cam_operation, nOpenDevSuccess = trigger_once(triggercheck_val, obj_cam_operation,
+                                                                            nOpenDevSuccess)
 
-        triggercheck_val, obj_cam_operation, nOpenDevSuccess = trigger_once(triggercheck_val, obj_cam_operation, nOpenDevSuccess)
-
+        # Wait until all threads have grabbed a frame and put it into the queue
         barrier.wait()
 
+        # Get both frames from the queue and make sure that no other thread inputs something new into the queue
         with lock:
             for k in range(2):
                 ind = queue.get()
@@ -229,17 +331,54 @@ if __name__ == "__main__":
                 else:
                     frame_right = image
 
-        frame_left = cv2.resize(frame_left, (0,0), fx=0.25, fy=0.25)
-        frame_right = cv2.resize(frame_right, (0,0), fx=0.25, fy=0.25)
+        img_size = frame_left.shape[:2]
+
+        # frame_undistorted_left, frame_undistorted_right, P1, P2 = undistort_rectify_frames(mtx_left, dist_left, mtx_right,
+        #                                                                                    dist_right, img_size, R, T,
+        #                                                                                    frame_left, frame_right)
+        result_left = yolo(frame_left)
+        result_right = yolo(frame_right)
+        # result_left = yolo(frame_undistorted_left)
+        # result_right = yolo(frame_undistorted_right)
+        print(result_left)
+        if result_left.pred[0].size()[0] == 0 or result_right.pred[0].size()[0] == 0:
+            resize_dispwind(img_size)
+            cv2.imshow("frame_left", frame_left)
+            cv2.imshow("frame_right", frame_right)
+            if cv2.waitKey(1) == ord('q'):
+                with lock:
+                    print("FPS = ", round(i / (time.time() - start), 1))
+                break
+            i += 1
+            continue
+
+        center_x_l, center_y_l, center_x_r, center_y_r = get_imagepoints(result_left, result_right)
+
+        # Triangulate the center of the bounding box
+        points3d = cv2.triangulatePoints(P1, P2, (center_x_l, center_y_l), (center_x_r, center_y_r))
+
+        # Calculate the distance form the baseline center to the bounding box center
+        depth = points3d[2] / points3d[3]  # focal_length*baseline/(center_x_r - center_x_l) *
+        x_distance = points3d[0] / points3d[3]
+        y_distance = points3d[1] / points3d[3]
+        print(f'Distance form the baseline center to the bounding box center: {round(depth[0], 3)} meters')
+
+        frame_left = np.squeeze(result_left.render())
+        frame_left = cv2.circle(frame_left, (center_x_l, center_y_l), 10, (0, 0, 256), -1)
+
+        frame_right = np.squeeze(result_right.render())
+        frame_right = cv2.circle(frame_right, (center_x_r, center_y_r), 10, (0, 0, 256), -1)
+
+        resize_dispwind(img_size)
 
         cv2.imshow("frame_left", frame_left)
         cv2.imshow("frame_right", frame_right)
 
         if cv2.waitKey(1) == ord('q'):
             with lock:
-                print("FPS = ", round(i/(time.time()-start),1))
+                print("FPS = ", round(i / (time.time() - start), 1))
             break
         i += 1
     nOpenDevSuccess, obj_cam_operation = stop_grabbing(nOpenDevSuccess, obj_cam_operation)
     b_is_run, obj_cam_operation, nOpenDevSuccess = close_device(b_is_run, obj_cam_operation, nOpenDevSuccess)
-
+    cv2.destroyAllWindows()

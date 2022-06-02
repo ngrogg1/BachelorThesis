@@ -20,7 +20,7 @@ from ctypes import *
 from tkinter import ttk
 
 
-sys.path.append("MvImport")
+sys.path.append("../MvImport")
 from MvCameraControl_class import *
 
 def Async_raise(tid, exctype):

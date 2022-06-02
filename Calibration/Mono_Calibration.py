@@ -97,22 +97,30 @@ print("Start calibrating left camera...")
 start = time.time()
 
 # Calibration of the Camera
-_, cameraMatrix_left, distCoeffs_left, _, _ = cv2.aruco.calibrateCameraCharuco(allCorners_left,
+ret_left, cameraMatrix_left, distCoeffs_left, _, _ = cv2.aruco.calibrateCameraCharuco(allCorners_left,
                                                                                allIds_left, board,
                                                                                imsize, None, None)
-print(f'Calibration for left camera finished in {round((time.time() - start) / 60, 1)} minutes!')
 
+print(f'Calibration for left camera finished in {round((time.time() - start) / 60, 1)} minutes!')
+print("RMSE for left camera: %f" % ret_left)
 print("Start calibrating right camera...")
 
 # To see how long the calibration of the camera takes
 start = time.time()
 
 # Calibration of the Camera
-_, cameraMatrix_right, distCoeffs_right, _, _ = cv2.aruco.calibrateCameraCharuco(allCorners_right,
+ret_right, cameraMatrix_right, distCoeffs_right, _, _ = cv2.aruco.calibrateCameraCharuco(allCorners_right,
                                                                                  allIds_right,
                                                                                  board,
                                                                                  imsize, None, None)
+
 print(f'Calibration for right camera finished in {round((time.time() - start) / 60, 1)} minutes!')
+print("RMSE for right camera: %f" % ret_right)
+
+
+# cameraMatrix_left, roi = cv2.getOptimalNewCameraMatrix(cameraMatrix_left, distCoeffs_left, imsize, 1, imsize)
+# cameraMatrix_right, roi = cv2.getOptimalNewCameraMatrix(cameraMatrix_right, distCoeffs_right, imsize, 1, imsize)
+
 
 # Show the results of the Calibration
 print("Left Camera Matrix: \n", cameraMatrix_left, "\n")
