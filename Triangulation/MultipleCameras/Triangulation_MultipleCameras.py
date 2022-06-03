@@ -14,6 +14,7 @@ import numpy as np
 import torch
 import cv2
 
+#C:/Users/Nic/Documents/GitHub/BachelorThesis/Triangulation/MvImport
 
 sys.path.append("../MvImport")
 from MvCameraControl_class import *
@@ -46,7 +47,7 @@ def enum_devices(deviceList, devList, tlayerType):
     if deviceList.nDeviceNum == 0:
         print('Info: Found no device!')
 
-    print("Found %d devices!" % deviceList.nDeviceNum)
+    print("Found %d devices!\n" % deviceList.nDeviceNum)
 
     devList = []
     for i in range(0, deviceList.nDeviceNum):
@@ -54,7 +55,7 @@ def enum_devices(deviceList, devList, tlayerType):
 
         # Print USB device information
         if mvcc_dev_info.nTLayerType == MV_USB_DEVICE:  # we use usb
-            print("\nu3v device: [%d]" % i)
+            print("u3v device: [%d]" % i)
             strModeName = ""
             for per in mvcc_dev_info.SpecialInfo.stUsb3VInfo.chModelName:
                 if per == 0:
@@ -67,7 +68,7 @@ def enum_devices(deviceList, devList, tlayerType):
                 if per == 0:
                     break
                 strSerialNumber = strSerialNumber + chr(per)
-            print("Device serial number: %s" % strSerialNumber)
+            print("Device serial number: %s \n" % strSerialNumber)
             devList.append("USB[" + str(i) + "]" + str(strSerialNumber))
 
     return deviceList, devList, tlayerType
@@ -102,7 +103,7 @@ def open_device(deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devLis
 
         # If camera has been opened print the camera's information and increment the counter
         else:
-            print(str(devList[i]))
+            print("Opened: " + str(devList[i]))
             nOpenDevSuccess = nOpenDevSuccess + 1
             model_val = 'continuous'
 
@@ -111,7 +112,7 @@ def open_device(deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devLis
             b_is_run = True
             break
 
-        print("Amount of open devices = ", nOpenDevSuccess)
+    print("\nAmount of open devices = ", nOpenDevSuccess, "\n")
 
     return deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devList
 
@@ -168,35 +169,27 @@ def trigger_once(triggercheck_val, obj_cam_operation, nOpenDevSuccess):
     return triggercheck_val, obj_cam_operation, nOpenDevSuccess
 
 
-# def get_parameter():  # Get frame rate, exposure time and gain for camera
-#     global obj_cam_operation
-#     global nOpenDevSuccess
-#     for i in range(0, nOpenDevSuccess):
-#         ret = obj_cam_operation[i].Get_parameter()
-#         if 0 != ret:
-#             tkinter.messagebox.showerror('show error',
-#                                          'camera' + str(i) + 'get parameter fail!ret = ' + To_hex_str(ret))
-#         text_frame_rate.delete(1.0, tk.END)
-#         text_frame_rate.insert(1.0, obj_cam_operation[i].frame_rate)
-#         text_exposure_time.delete(1.0, tk.END)
-#         text_exposure_time.insert(1.0, obj_cam_operation[i].exposure_time)
-#         text_gain.delete(1.0, tk.END)
-#         text_gain.insert(1.0, obj_cam_operation[i].gain)
-#
-# def set_parameter():  # Set each camera parameters
-#     global obj_cam_operation
-#     global nOpenDevSuccess
-#     for i in range(0, nOpenDevSuccess):
-#         obj_cam_operation[i].exposure_time = text_exposure_time.get(1.0, tk.END)
-#         obj_cam_operation[i].exposure_time = obj_cam_operation[i].exposure_time.rstrip("\n")
-#         obj_cam_operation[i].gain = text_gain.get(1.0, tk.END)
-#         obj_cam_operation[i].gain = obj_cam_operation[i].gain.rstrip("\n")
-#         obj_cam_operation[i].frame_rate = text_frame_rate.get(1.0, tk.END)
-#         obj_cam_operation[i].frame_rate = obj_cam_operation[i].frame_rate.rstrip("\n")
-#         ret = obj_cam_operation[i].Set_parameter(obj_cam_operation[i].frame_rate,
-#                                                  obj_cam_operation[i].exposure_time, obj_cam_operation[i].gain)
-#         if 0 != ret:
-#             tkinter.messagebox.showerror('show error', 'camera' + str(i) + 'set parameter fail!')
+def get_parameter(obj_cam_operation, nOpenDevSuccess, devList):  # Get frame rate, exposure time and gain for camera
+    for i in range(0, nOpenDevSuccess):
+        ret = obj_cam_operation[i].Get_parameter()
+        if 0 != ret:
+            print('Error: camera' + str(i) + 'get parameter fail! ret = ' + To_hex_str(ret))
+        print(f'Parameters for camera {str(devList[i])}:')
+        print(f'Frame rate: {obj_cam_operation[i].frame_rate}')
+        print(f'Exposure time: {obj_cam_operation[i].exposure_time}')
+        print(f'Gain: {round(obj_cam_operation[i].gain,1)} \n')
+
+def set_parameter(obj_cam_operation, nOpenDevSuccess, exposure_time, gain, frame_rate):  # Set each camera parameters
+    for i in range(0, nOpenDevSuccess):
+        obj_cam_operation[i].exposure_time = exposure_time
+        obj_cam_operation[i].gain = gain
+        obj_cam_operation[i].frame_rate = frame_rate
+        ret = obj_cam_operation[i].Set_parameter(obj_cam_operation[i].frame_rate,
+                                                 obj_cam_operation[i].exposure_time, obj_cam_operation[i].gain)
+        if 0 != ret:
+            print('Error: camera' + str(i) + 'set parameter fail!')
+
+    return obj_cam_operation, nOpenDevSuccess
 
 
 def undistort_rectify_frames(mtx_left, dist_left, mtx_right, dist_right, img_size, R, T, frame_left, frame_right):
@@ -271,8 +264,7 @@ if __name__ == "__main__":
     P2 = mtx_right @ RT2  # projection matrix for C2
 
     # Load the yolov5 model which with custom pretrained weights, trained on the blender images
-    yolo = torch.hub.load('ultralytics/yolov5', 'custom',
-                          path='C:/Users/Nic/Documents/GitHub/yolov5/runs/train/exp/weights/last.pt', force_reload=True)
+    yolo = torch.hub.load('ultralytics/yolov5', 'custom', path='C:/Users/Nic/Documents/GitHub/yolov5/runs/train/exp/weights/last.pt', force_reload=True)
 
     # Set variables for the capturing of the frames of both cameras
     deviceList = MV_CC_DEVICE_INFO_LIST()
@@ -283,6 +275,9 @@ if __name__ == "__main__":
     devList = []
     model_val = "triggermode"
     triggercheck_val = 1
+    exposure_time = 30000.0
+    gain = 1.0
+    frame_rate = 60.0
 
     # Create barriers, locks and queue to communicate between different threads
     barrier = threading.Barrier(3)
@@ -304,8 +299,16 @@ if __name__ == "__main__":
     # it will grab a new frame
     obj_cam_operation, nOpenDevSuccess = set_triggermode(obj_cam_operation, nOpenDevSuccess, model_val)
 
+    # Set the parameters of the camera to change the brightness etc.
+    obj_cam_operation, nOpenDevSuccess = set_parameter(obj_cam_operation, nOpenDevSuccess, exposure_time, gain, frame_rate)
+    get_parameter(obj_cam_operation, nOpenDevSuccess, devList)
+
     # Start the grabbing threads
     obj_cam_operation, nOpenDevSuccess = start_grabbing(obj_cam_operation, nOpenDevSuccess, lock, barrier, queue)
+
+    # Resize the display windows so that they don't cover the whole screen
+    img_size = (2048, 2448)
+    resize_dispwind(img_size)
 
     # Counters to calculate fps
     i = 1
@@ -331,20 +334,27 @@ if __name__ == "__main__":
                 else:
                     frame_right = image
 
+        # Get the framesize for both frames (since its the same camera we only need one)
         img_size = frame_left.shape[:2]
 
         # frame_undistorted_left, frame_undistorted_right, P1, P2 = undistort_rectify_frames(mtx_left, dist_left, mtx_right,
         #                                                                                    dist_right, img_size, R, T,
         #                                                                                    frame_left, frame_right)
+
+        # Feed the frames to the yolov5s network to detect the objects
         result_left = yolo(frame_left)
         result_right = yolo(frame_right)
+
         # result_left = yolo(frame_undistorted_left)
         # result_right = yolo(frame_undistorted_right)
-        print(result_left)
+
+        # If the object has not been detected in both frames, show the frames and restart the while loop
         if result_left.pred[0].size()[0] == 0 or result_right.pred[0].size()[0] == 0:
-            resize_dispwind(img_size)
+            # Show the left and right frame
             cv2.imshow("frame_left", frame_left)
             cv2.imshow("frame_right", frame_right)
+
+            # If the q Key is pressed stop the recording and print out the frames per second
             if cv2.waitKey(1) == ord('q'):
                 with lock:
                     print("FPS = ", round(i / (time.time() - start), 1))
@@ -352,24 +362,27 @@ if __name__ == "__main__":
             i += 1
             continue
 
+        # If the object has been detected in both frames compute the center points of the boundingboxes
         center_x_l, center_y_l, center_x_r, center_y_r = get_imagepoints(result_left, result_right)
 
         # Triangulate the center of the bounding box
         points3d = cv2.triangulatePoints(P1, P2, (center_x_l, center_y_l), (center_x_r, center_y_r))
 
-        # Calculate the distance form the baseline center to the bounding box center
-        depth = points3d[2] / points3d[3]  # focal_length*baseline/(center_x_r - center_x_l) *
+        # Calculate the distance form the left camera coordinate system to the bounding box center
+        depth = points3d[2] / points3d[3]
         x_distance = points3d[0] / points3d[3]
         y_distance = points3d[1] / points3d[3]
-        print(f'Distance form the baseline center to the bounding box center: {round(depth[0], 3)} meters')
 
+        print(f'Distance form the camera to the bounding box center: {round(depth[0], 3)} meters')
+
+        # Draw a circle on the bounding box centers
         frame_left = np.squeeze(result_left.render())
         frame_left = cv2.circle(frame_left, (center_x_l, center_y_l), 10, (0, 0, 256), -1)
 
         frame_right = np.squeeze(result_right.render())
         frame_right = cv2.circle(frame_right, (center_x_r, center_y_r), 10, (0, 0, 256), -1)
 
-        resize_dispwind(img_size)
+        #resize_dispwind(img_size)
 
         cv2.imshow("frame_left", frame_left)
         cv2.imshow("frame_right", frame_right)
