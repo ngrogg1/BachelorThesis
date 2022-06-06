@@ -1,5 +1,5 @@
 # Bachelor Thesis
-## Nic Grogg
+By Nic Grogg
 
 This thesis is a complete pipeline from creating a hardware setup to detecting object with this setup. The main goal here was to...
 
@@ -17,7 +17,7 @@ This project was done with Blender version 3.1.2. No additional packages are nee
 
 ### Creating Artificial Images:
 
-As mentioned before the object I am trying to detect is a small toy car. Since the car was previously used in another Thesis at the pd|z lab there existed a 3D scan and a blender compatible object file of it which is stored in the Blender -> Objects -> Car sub folder. For the surrounding scene, the framework created in NX12, described in the [CAD section](#-cad), is used.
+As mentioned before the object I am trying to detect is a small toy car. Since the car was previously used in another Thesis at the pd|z lab there existed a 3D scan and a blender compatible object file of it which is stored in the Blender -> Objects -> Car sub folder. For the surrounding scene, the framework created in NX12, described in the [CAD section](#cad), is used.
 
 To make artificial images of the car in this scene, open the blender file "CameraSetup.blend" and go to the Scripting tab at the top: ![Blender_ScriptingTab](data/readme/Blender/ScriptingTab.jpg) This will open the python script in Blender where the amount of random camera position changes and the amount of images rendered for each position can be set with the "total_position_changes" and "total_render_count" variables: ![Blender_ChangesCount](data/readme/Blender/ChangesCount.jpg) After setting the desired values, the script can be executed and the images for each object will be created and saved to the data/Blender/images folder. Further, the Blender python script outputs labels for each image as text files, which are saved in the data/Blender/labels folder. These text files are formatted so that the [yolov5 neural network](https://github.com/ultralytics/yolov5) can be trained on them. A text file contains the class of the object, the x and y coordinates of the center, the width and the height of the bounding box. In addition to these text files an additional text file which contains the possible classes is in the data/Blender/labels folder in order to properly train the [yolov5 neural network](https://github.com/ultralytics/yolov5). To visualize the bounding box, the "DrawBoundingBox.py" script is provided.
 
@@ -40,7 +40,7 @@ There are a few more functions implemented in the Blender file script. Since the
 
 ## Train the Yolov5 Network
 
-...
+There is a Jupyter Notebook provided called "yolov5_ultralytics.ipynb" where all the steps to train and test the fastest yolov5 model, called yolov5s, are implemented. To see how to properly train the yolov5 neural network go to the official yolov5 [Git repository](https://github.com/ultralytics/yolov5) from Ultralytics .
 
 ## Calibrating the Cameras
 
