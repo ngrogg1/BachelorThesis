@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="G:\NX12\ugii\SWschema\dtk_xsl\dtk_181.xsl"?>
+<Log>
+<DtkApiVersion>181</DtkApiVersion>
+<DtkDllVersion>20171215</DtkDllVersion>
+<ProductMode>Psk</ProductMode>
+<InputFormat>SOLIDWORKS</InputFormat>
+<OutputFormat>PARASOLID</OutputFormat>
+<HealingFlag>0</HealingFlag>
+<ConfigFile>Error Loading Config File</ConfigFile>
+<FileName><![CDATA[E:\Master_Study\SP\Physical Settings\Slider\Renderings\SBR16UU 16mm Open Linear Bearing.SLDPRT]]></FileName>
+<FileVersion>Official version for SolidWorks 2013 </FileVersion>
+<OutPutFileName><![CDATA[E:\Master_Study\SP\Physical Settings\Slider\Renderings\SBR16UU 16mm Open Linear Bearing.SLDPRT.x_t]]></OutPutFileName>
+<OutPutFileSize>648331</OutPutFileSize>
+<bill_of_materials>
+<component_root><path><![CDATA[E:\Master_Study\SP\Physical Settings\Slider\Renderings\SBR16UU 16mm Open Linear Bearing.SLDPRT]]></path><type>Part</type><name><![CDATA[SBR16UU 16mm Open Linear Bearing]]></name><status>dtkNoError</status><size>7412736</size><unit>Millimeters</unit><version></version></component_root>
+</bill_of_materials>
+<components_info>
+<component>
+<path><![CDATA[E:\Master_Study\SP\Physical Settings\Slider\Renderings\SBR16UU 16mm Open Linear Bearing.SLDPRT]]></path>
+<name><![CDATA[SBR16UU 16mm Open Linear Bearing]]></name>
+<meta>
+<count>8</count>
+<property><title>TITLE</title><value><![CDATA[]]></value><type>TypeFileProperty</type></property>
+<property><title>SUBJECT</title><value><![CDATA[]]></value><type>TypeFileProperty</type></property>
+<property><title>AUTHOR</title><value><![CDATA[]]></value><type>TypeFileProperty</type></property>
+<property><title>KEYWORDS</title><value><![CDATA[]]></value><type>TypeFileProperty</type></property>
+<property><title>COMMENTS</title><value><![CDATA[]]></value><type>TypeFileProperty</type></property>
+<property><title>NAME</title><value><![CDATA[Admin_2]]></value><type>TypeFileProperty</type></property>
+<property><title>LAST_RECORD</title><value><![CDATA[Sat Jan 24 14:48:18 2015]]></value><type>TypeFileProperty</type></property>
+<property><title>CREATED</title><value><![CDATA[Sat Jan 24 14:48:18 2015]]></value><type>TypeFileProperty</type></property>
+</meta>
+</component>
+</components_info>
+<output_files_written>
+<file><path><![CDATA[E:\Master_Study\SP\Physical Settings\Slider\Renderings\SBR16UU 16mm Open Linear Bearing.SLDPRT.x_t]]></path><size>648331</size></file>
+</output_files_written>
+<inventory_writer>
+<output_file>
+<path><![CDATA[E:\Master_Study\SP\Physical Settings\Slider\Renderings\SBR16UU 16mm Open Linear Bearing.SLDPRT.x_t]]></path>
+<inventory>
+<entity><count>1</count><type>10 : ASSEMBLY</type></entity>
+<entity><count>54</count><type>11 : INSTANCE</type></entity>
+<entity><count>54</count><type>12 : BODY</type></entity>
+<entity><count>108</count><type>13 : SHELL</type></entity>
+<entity><count>389</count><type>14 : FACE</type></entity>
+<entity><count>424</count><type>15 : LOOP</type></entity>
+<entity><count>813</count><type>16 : EDGE</type></entity>
+<entity><count>1626</count><type>17 : HALFEDGE</type></entity>
+<entity><count>504</count><type>18 : VERTEX</type></entity>
+<entity><count>108</count><type>19 : REGION</type></entity>
+<entity><count>504</count><type>29 : POINT</type></entity>
+<entity><count>163</count><type>50 : PLANE</type></entity>
+<entity><count>16</count><type>52 : CONE</type></entity>
+<entity><count>70</count><type>51 : CYLINDER</type></entity>
+<entity><count>52</count><type>53 : SPHERE</type></entity>
+<entity><count>14</count><type>54 : TORUS</type></entity>
+<entity><count>74</count><type>67 : SWEPT_SURF</type></entity>
+<entity><count>127</count><type>31 : CIRCLE</type></entity>
+<entity><count>508</count><type>30 : LINE</type></entity>
+<entity><count>20</count><type>32 : ELLIPSE</type></entity>
+<entity><count>10</count><type>38 : INTERSECTION</type></entity>
+<entity><count>148</count><type>35 : PARACURVE</type></entity>
+<entity><count>2163</count><type>DTK_PUBLICATION</type></entity>
+<entity><count>7950</count><type>TOTAL</type></entity>
+</inventory>
+</output_file>
+</inventory_writer>
+<information>
+<info><message><![CDATA[PsKernel version used:28.0.197]]></message><type><![CDATA[Version]]></type></info>
+<info><message><![CDATA[OK Find Schema : G:\NX12\ugii\SWschema\sch_10004.s_t]]></message><type><![CDATA[Schema]]></type></info>
+</information>
+<Conversion>
+<Start>  11:36:08</Start>
+<End>  11:36:08</End>
+<Duration>0 sec</Duration>
+</Conversion>
+</Log>
