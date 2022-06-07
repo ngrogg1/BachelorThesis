@@ -3,6 +3,12 @@ By Nic Grogg
 
 This thesis is a complete pipeline from creating a hardware setup to detecting object with this setup. The main goal here was to...
 
+# TODO
+changing Cameras (maybe create function)
+
+explain yolov5 jupyter notebook code
+edit images
+
 ## CAD
 
 In the subfolder of the CAD there are ...
@@ -19,7 +25,7 @@ This project was done with Blender version 3.1.2. No additional packages are nee
 
 As mentioned before the object I am trying to detect is a small toy car. Since the car was previously used in another Thesis at the pd|z lab there existed a 3D scan and a blender compatible object file of it which is stored in the Blender -> Objects -> Car sub folder. For the surrounding scene, the framework created in NX12, described in the [CAD section](#cad), is used.
 
-To make artificial images of the car in this scene, open the blender file "CameraSetup.blend" and go to the Scripting tab at the top: ![Blender_ScriptingTab](data/readme/Blender/ScriptingTab.jpg) This will open the python script in Blender where the amount of random camera position changes and the amount of images rendered for each position can be set with the "total_position_changes" and "total_render_count" variables: ![Blender_ChangesCount](data/readme/Blender/ChangesCount.jpg) After setting the desired values, the script can be executed and the images for each object will be created and saved to the data/Blender/images folder. Further, the Blender python script outputs labels for each image as text files, which are saved in the data/Blender/labels folder. These text files are formatted so that the [yolov5 neural network](https://github.com/ultralytics/yolov5) can be trained on them. A text file contains the class of the object, the x and y coordinates of the center, the width and the height of the bounding box. In addition to these text files an additional text file which contains the possible classes is in the data/Blender/labels folder in order to properly train the [yolov5 neural network](https://github.com/ultralytics/yolov5). To visualize the bounding box, the "DrawBoundingBox.py" script is provided.
+To make artificial images of the car in this scene, open the blender file "CameraSetup.blend" and go to the Scripting tab at the top: ![Blender_ScriptingTab](data/readme/Blender/ScriptingTab.jpg) This will open the python script in Blender where the amount of random camera position changes and the amount of images rendered for each position can be set with the "total_position_changes" and "total_render_count" variables: ![Blender_ChangesCount](data/readme/Blender/ChangesCount.jpg) With every new position change of the camera slider, the lighting is also randomly set, this gives more robustness to lighting differences in the real world. After setting the desired values, the script can be executed and the images for each object will be created and saved to the data/Blender/images folder. Further, the Blender python script outputs labels for each image as text files, which are saved in the data/Blender/labels folder. These text files are formatted so that the [yolov5 neural network](https://github.com/ultralytics/yolov5) can be trained on them. A text file contains the class of the object, the x and y coordinates of the center, the width and the height of the bounding box. In addition to these text files an additional text file which contains the possible classes is in the data/Blender/labels folder in order to properly train the [yolov5 neural network](https://github.com/ultralytics/yolov5). To visualize the bounding box, the "DrawBoundingBox.py" script is provided.
 
 ### Changing Objects:
 
@@ -36,7 +42,10 @@ If you want to create images for different objects, here's how to properly impor
 
 ### Additional Information
 
-There are a few more functions implemented in the Blender file script. Since the script is well commented, I invite you to read through the script carefully and it should be self-explanatory what each part of the script does. At the moment any movement of the object and the cameras is randomized so that the object is always seen by the camera, this randomization can easily be changed if you want specific positions of the object or the cameras. In each rotation/translation function there is a random_rot/random_trans variable at the end that you can set to the desired values and then the object (or cameras) will always be moved/rotated in the specified way. Additionally and finally, if you want to set the light intensity, change the variable "light_01.data.energy" and "light_02.data.energy" in the script to the desired value.
+There are a few more functions implemented in the Blender "CameraSetup.blend" file script. Since the script is well commented, I invite you to read through the script carefully and it should be self-explanatory what each part of the script does.
+At the moment any movement of the object and cameras is randomized so that the object is always seen by the camera, this randomization can easily be changed if you want specific positions of the object or cameras. In each rotation/translation function, there is a "random_rot"/"random_trans" variable at the end that you can set to the desired values, and then the object (or cameras) will always be moved/rotated in the specified way.
+To replicate previous camera setups, there is a function called "set_camera_extrinsics". Thi s function takes the real world position given by the baseline of the cameras and the holes where the slider is mounted, and replicates the position of the cameras and slider in Blender. The coordinate system of the holes has the origin in the upper right corner of the right side wall of the framework, with the x axis pointing to the left and the z axis pointing down. In order for the real world scenario to be replicated appropriately, make sure that the baseline of the cameras in the real world is centered on the slider.
+If you want to additionally adjust the light intensity, change the variables "light_01.data.energy" and "light_02.data.energy" in the script to the desired value.
 
 ## Train the Yolov5 Network
 
