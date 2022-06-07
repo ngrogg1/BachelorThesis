@@ -75,7 +75,7 @@ Here is a small introduction on how to train and test the yolov5s neural network
 
 In the "Calibration" folder there are python scripts for calibrating the Camera Setup. A step by step guide on how to use the scripts to calibrate your cameras is provided here. To take and save videos or images with the cameras at the pd|z, additional software is required. This software can be downloaded from the [official Hikrobotics website](https://www.hikrobotics.com/en/machinevision/service/download?module=0). It is necessary to download the "Machine Vision Software MVS3.4.1" software and install their application.
 
-There are two ways [a)](#step-0:-Save-a-video-with-both-cameras-separately-of-a-ChArUco-marker-board) and [b)](#aaaa) to create the frames for the mono calibration. In a) the official application from Hikorobotics is used to capture a video and this video is then transformed into single frames in b) the development script provided by Hikorobotics is modified to directly take single images with both cameras.
+There are two ways [a)](#step-0-save-a-video-with-both-cameras-separately-of-a-charuco-marker-board) and [b)](#b-run-the-stereo_capturepy-script-in-the-calibrationstereo_image_capturemultiplecameras-folder) to create the frames for the mono calibration. In a) the official application from Hikorobotics is used to capture a video and this video is then transformed into single frames in b) the development script provided by Hikorobotics is modified to directly take single images with both cameras.
 
 ### Step 0: Save a video with both cameras separately of a ChArUco marker board
 
@@ -116,7 +116,7 @@ Make sure that the "path" variable in the "Mono_Calibration.py" script is the pa
 ### Step 3: Run the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder.
 
 1. Make sure that the the path in the "set_path_stereo" function is the path on your computer to the data/Calibration/frames_stereo folder of this repository.
-2. Follow steps 2. - 5. of the [description for the mono calibration](# b Run the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder).
+2. Follow steps 2. - 5. of the [description for the mono calibration](#b-run-the-stereo_capturepy-script-in-the-calibrationstereo_image_capturemultiplecameras-folder).
 3. Place the checker board so that it is visible to both cameras.
 4. Press the "Stop Grabbing" button. The video capture will stop.
 5. Uncheck the "Continuous" box by checking the "Trigger Mode" box.
@@ -130,4 +130,4 @@ Make sure that the "path" variable in the "Stereo_Calibration.py" script is the 
 
 ## Object Detection and Triangulation
 
-...
+Make sure that the "data_path" variable in the "Triangulation_MultipleCameras.py" script of the of the Triangulation/MultipleCameras folder is the path on your computer to the data folder of this repository: <img> Further make sure, that you load in the right weights for the yolov5 network: <img> Then run the script. Two windows should pop up and if an object to detect is visible for both cameras it will detect it and calculate and print the distance of the object to the left camera.
