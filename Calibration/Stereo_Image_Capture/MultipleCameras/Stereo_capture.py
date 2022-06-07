@@ -40,6 +40,8 @@ if __name__ == "__main__":
     global nOpenDevSuccess
     nOpenDevSuccess = 0
     global devList
+    global output_path
+    output_path = "C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/frames_stereo/"
 
 
     #界面设计代码 | en:Interface design code is here
@@ -152,16 +154,17 @@ if __name__ == "__main__":
         global nOpenDevSuccess
         lock=threading.Lock() #申请一把锁 en: add a lock
         global save_img
+        global output_path
         ret = 0
         for i in range(0,nOpenDevSuccess):
             if 0 == i:
-                ret = obj_cam_operation[i].Start_grabbing(i,window,panel,lock, save_img)
+                ret = obj_cam_operation[i].Start_grabbing(i,window,panel,lock, save_img, output_path)
             elif 1 == i:
-                ret = obj_cam_operation[i].Start_grabbing(i,window,panel1,lock, save_img)
+                ret = obj_cam_operation[i].Start_grabbing(i,window,panel1,lock, save_img, output_path)
             elif 2 == i:
-                ret = obj_cam_operation[i].Start_grabbing(i,window,panel2,lock, save_img)
+                ret = obj_cam_operation[i].Start_grabbing(i,window,panel2,lock, save_img, output_path)
             elif 3 == i:
-                ret = obj_cam_operation[i].Start_grabbing(i,window,panel3,lock, save_img)
+                ret = obj_cam_operation[i].Start_grabbing(i,window,panel3,lock, save_img, output_path)
             if 0 != ret:
                 tkinter.messagebox.showerror('show error','camera:'+ str(i) +',start grabbing fail! ret = '+ To_hex_str(ret))
         save_img = False
@@ -244,7 +247,6 @@ if __name__ == "__main__":
                 tkinter.messagebox.showerror('show error','camera'+ str(i) + 'set parameter fail!')
 
     def start_save_jpg():
-        global obj_cam_operation
         global save_img
         save_img = True
 
@@ -252,25 +254,34 @@ if __name__ == "__main__":
         global save_img
         save_img = False
 
+    def set_path_mono():
+        global output_path
+        output_path = "C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/frames_mono/"
+
+    def set_path_stereo():
+        global output_path
+        output_path = "C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/frames_stereo/"
+
+
     text_number_of_devices = tk.Text(window,width=10, height=1)  # TK interface code, check https://docs.python.org/3/library/tkinter.html#a-hello-world-program if needed
     text_number_of_devices.place(x=200, y=20)
     label_total_devices = tk.Label(window, text='Number of camera：',width=25, height=1)
     label_total_devices.place(x=20, y=20)
 
     label_exposure_time = tk.Label(window, text='Exposure Time',width=15, height=1)
-    label_exposure_time.place(x=20, y=350)
+    label_exposure_time.place(x=20, y=450)
     text_exposure_time = tk.Text(window,width=15, height=1)
-    text_exposure_time.place(x=160, y=350)
+    text_exposure_time.place(x=160, y=450)
 
     label_gain = tk.Label(window, text='Gain', width=15, height=1)
-    label_gain.place(x=20, y=400)
+    label_gain.place(x=20, y=500)
     text_gain = tk.Text(window,width=15, height=1)
-    text_gain.place(x=160, y=400)
+    text_gain.place(x=160, y=500)
 
     label_frame_rate = tk.Label(window, text='Frame Rate', width=15, height=1)
-    label_frame_rate.place(x=20, y=450)
-    text_frame_rate  = tk.Text(window,width=15, height=1)
-    text_frame_rate.place(x=160, y=450)
+    label_frame_rate.place(x=20, y=550)
+    text_frame_rate = tk.Text(window,width=15, height=1)
+    text_frame_rate.place(x=160, y=550)
 
     btn_enum_devices = tk.Button(window, text='Initialization Cameras', width=35, height=1, command = enum_devices )
     btn_enum_devices.place(x=20, y=50)
@@ -279,31 +290,39 @@ if __name__ == "__main__":
     btn_close_device = tk.Button(window, text='Close Device', width=15, height=1, command = close_device)
     btn_close_device.place(x=160, y=100)
 
-    radio_continuous = tk.Radiobutton(window, text='Continuous',variable=model_val, value='continuous',width=15, height=1,command=set_triggermode)
+    radio_mono = tk.Button(window, text='Mono Calibration',width=15, height=1, command=set_path_mono)
+    radio_mono.place(x=20, y=200)
+    radio_stereo = tk.Button(window, text='Stereo Calibrtaion', width=15, height=1, command=set_path_stereo)
+    radio_stereo.place(x=160, y=200)
+
+    radio_continuous = tk.Radiobutton(window, text='Continuous', variable=model_val, value='continuous', width=15, height=1, command=set_triggermode)
     radio_continuous.place(x=20,y=150)
-    radio_trigger = tk.Radiobutton(window, text='Trigger Mode',variable=model_val, value='triggermode',width=15, height=1,command=set_triggermode)
+    radio_trigger = tk.Radiobutton(window, text='Trigger Mode', variable=model_val, value='triggermode', width=15, height=1, command=set_triggermode)
     radio_trigger.place(x=160,y=150)
     model_val.set(1)
 
+    btn_start_recording_img = tk.Button(window, text='Start Capture', width=15, height=1, command=start_save_jpg)
+    btn_start_recording_img.place(x=20, y=250)
+    btn_stop_recording_img = tk.Button(window, text='Stop Capture', width=15, height=1, command=stop_save_jpg)
+    btn_stop_recording_img.place(x=160, y=250)
+
     btn_start_grabbing = tk.Button(window, text='Start Grabbing', width=15, height=1, command = start_grabbing ) # check the workthread in CamOperation_class.py, 
-    btn_start_grabbing.place(x=20, y=200)
+    btn_start_grabbing.place(x=20, y=300)
     btn_stop_grabbing = tk.Button(window, text='Stop Grabbing', width=15, height=1, command = stop_grabbing)
-    btn_stop_grabbing.place(x=160, y=200)
+    btn_stop_grabbing.place(x=160, y=300)
 
     checkbtn_trigger_software = tk.Checkbutton(window, text='Tigger by Software', variable=triggercheck_val, onvalue=1, offvalue=0)
-    checkbtn_trigger_software.place(x=20,y=250)
+    checkbtn_trigger_software.place(x=20,y=350)
     btn_trigger_once = tk.Button(window, text='Trigger Once', width=15, height=1, command = trigger_once)
-    btn_trigger_once.place(x=160, y=250)
+    btn_trigger_once.place(x=160, y=350)
 
     btn_get_parameter = tk.Button(window, text='Get Parameter', width=15, height=1, command = get_parameter)
-    btn_get_parameter.place(x=20, y=500)
+    btn_get_parameter.place(x=20, y=600)
     btn_set_parameter = tk.Button(window, text='Set Parameter', width=15, height=1, command = set_parameter)
-    btn_set_parameter.place(x=160, y=500)
+    btn_set_parameter.place(x=160, y=600)
 
-    btn_start_recording_img = tk.Button(window, text='Start Capture', width=15, height=1, command=start_save_jpg)
-    btn_start_recording_img.place(x=20, y=550)
-    btn_stop_recording_img = tk.Button(window, text='Stop Capture', width=15, height=1, command=stop_save_jpg)
-    btn_stop_recording_img.place(x=160, y=550)
     window.mainloop()
+
+
 
     

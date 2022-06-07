@@ -112,7 +112,7 @@ class CameraOperation():
                 print ("set trigger mode fail! ret[0x%x]" % ret)
             return 0
 
-    def Start_grabbing(self,index,root,panel,lock, save_img = False):
+    def Start_grabbing(self,index,root,panel,lock, save_img, output_path):
         if False == self.b_start_grabbing and True == self.b_open_device:
             self.b_exit = False
             ret = self.obj_cam.MV_CC_StartGrabbing()
@@ -121,7 +121,7 @@ class CameraOperation():
                 return ret
             self.b_start_grabbing = True
             try:
-                self.h_thread_handle = threading.Thread(target=CameraOperation.Work_thread, args=(self,index,root,panel,lock,save_img))
+                self.h_thread_handle = threading.Thread(target=CameraOperation.Work_thread, args=(self,index,root,panel,lock,save_img, output_path))
                 self.h_thread_handle.start()
                 self.b_thread_closed = True
             except:
@@ -207,7 +207,7 @@ class CameraOperation():
             ret = self.obj_cam.MV_CC_SetFloatValue("AcquisitionFrameRate",float(frameRate))
             return ret
 
-    def Work_thread(self,index,root,panel,lock, save_img):
+    def Work_thread(self, index, root, panel, lock, save_img, output_path):
         stOutFrame = MV_FRAME_OUT()
         memset(byref(stOutFrame), 0, sizeof(stOutFrame))
         img_buff = None
@@ -225,7 +225,7 @@ class CameraOperation():
                 if img_buff is None:
                     img_buff = (c_ubyte * self.n_save_image_size)()
                 if save_img:
-                    self.Save_jpg(buf_cache, index)
+                    self.Save_jpg(buf_cache, index, output_path)
 
             else:
                 print("Camera[" + str(index) + "]:no data, ret = "+self.To_hex_str(ret))
@@ -283,15 +283,15 @@ class CameraOperation():
                     del img_buff
                 break
 
-    def Save_jpg(self,buf_cache, index):
+    def Save_jpg(self,buf_cache, index, output_path):
         if(None == buf_cache):
             print("buf_cache is None")
             return
         self.buf_save_image = None
         if index == 0:
-            file_path = "C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/frames_stereo/frames_left/frame_" + str(self.st_frame_info.nFrameNum) + "_left.jpg"
+            file_path = output_path + "frames_left/frame_" + str(self.st_frame_info.nFrameNum) + "_left.jpg"
         else:
-            file_path = "C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/frames_stereo/frames_right/frame_" + str(self.st_frame_info.nFrameNum) + "_right.jpg"
+            file_path = output_path + "frames_right/frame_" + str(self.st_frame_info.nFrameNum) + "_right.jpg"
 
         print(file_path)
         self.n_save_image_size = self.st_frame_info.nWidth * self.st_frame_info.nHeight * 3 + 2048

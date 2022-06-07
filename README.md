@@ -9,6 +9,10 @@ This thesis is a complete pipeline from creating a hardware setup to detecting o
 
 To be able to run the python scripts and jupyter notebooks there is a conda environment yaml file called "BachelorThesis.yml" to set up an environment, that should satisfy all requirements.
 
+# TODO
+changing Cameras in Blender (maybe create function)
+edit images
+
 ## CAD
 
 In the subfolder of the CAD there are ...
@@ -68,8 +72,42 @@ Here is a small introduction on how to train and test the yolov5s neural network
 
 ## Calibrating the Cameras
 
-...
+In the "Calibration" folder there are python scripts for calibrating the Camera Setup. A step by step guide on how to use the scripts to calibrate your cameras is provided here. To take and save videos or images with the cameras at the pd|z, additional software is required. This software can be downloaded from the [official Hikrobotics website](https://www.hikrobotics.com/en/machinevision/service/download?module=0). It is necessary to download the "Machine Vision Software MVS3.4.1" software and install their application.
 
-## Object Detection and Depth Estimation
+There are two ways [a)](#step-0:-Save-a-video-with-both-cameras-separately-of-a-ChArUco-marker-board) and [b)](#aaaa) to create the frames for the mono calibration. In a) the official application from Hikorobotics is used to capture a video and this video is then transformed into single frames in b) the development script provided by Hikorobotics is modified to directly take single images with both cameras.
+
+### Step 0: Save a video with both cameras separately of a ChArUco marker board
+
+This Step is only necessary if you want to take way a). Make sure you know the path to the location to which the application saves the video files to. This can be seen in the Settings -> Recording/Capturing -> Select Directory -> Saving Path.
+
+1. Run the "MVS.exe" file in the downloaded folder from the [Hikrobotics website](https://www.hikrobotics.com/en/machinevision/service/download?module=0), this should open their application
+2. Plug in the cameras with USB and rename them to camera_left and camera_right if it hasn't already been done.
+3. Connect the cameras to the application, for this hover over their name and press the connect button: <img>
+4. On the top left bar there is the option to go into multiple windows mode, select the 4 windows mode. Now four small windows should appear on the screen: <img>
+5. If not automatically done drag and drop the cameras to one window each.
+6. Start grabbing the images by clicking the start grabbing button on the upper left corner: Make sure you know which camera is the left camera and which the right camera.
+7. Double click on one camera and start recording by pressing the record button. After you have stopped recording do the exact same thing with the other camera. Make sure to move and minimally rotate the ChArUco board around so that the whole image plane of the cameras have been covered at least once in the videos.
+
+### Step 1: Making images for each camera of the ChArUco marker board
+
+#### a) Run the "Mono_frameproduction.py" to create single image frames of the videos.
+1. Copy and paste the path of the location to which the videos were saved to into the script: <img> Remember that there are two cameras so you will have to run this script twice, once for the left and once for the right camera.
+2. After running it once for the left camera you can run it again for the right camera. For the right camera comment out the "file_left" and "cap" variable like this: <img> Also comment out the old path to where the frames were saved and uncomment the new path like this: <img>
+
+#### b) Run the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder.
+Another possible way to create the ChArUco marker images is by using the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder of this respository. Here is a guide on how to save the images:
+
+1. a
+
+### Step 2: Run the "Mono_Calibration.py" script to get the intrinsics for both cameras.
+
+
+### Step 3: Run the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder.
+
+
+### Step 4: Execute the "Stereo_Calibration.py" script to get the camera extrinsics
+
+
+## Object Detection and Triangulation
 
 ...
