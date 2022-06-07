@@ -1,13 +1,13 @@
 # Bachelor Thesis
 By Nic Grogg
 
+## Introduction
+
 This thesis is a complete pipeline from creating a hardware setup to detecting object with this setup. The main goal here was to...
 
-# TODO
-changing Cameras (maybe create function)
+###Setup
 
-explain yolov5 jupyter notebook code
-edit images
+To be able to run the python scripts and jupyter notebooks there is a conda environment yaml file called "BachelorThesis.yml" to set up an environment, that should satisfy all requirements.
 
 ## CAD
 
@@ -43,13 +43,28 @@ If you want to create images for different objects, here's how to properly impor
 ### Additional Information
 
 There are a few more functions implemented in the Blender "CameraSetup.blend" file script. Since the script is well commented, I invite you to read through the script carefully and it should be self-explanatory what each part of the script does.
+
 At the moment any movement of the object and cameras is randomized so that the object is always seen by the camera, this randomization can easily be changed if you want specific positions of the object or cameras. In each rotation/translation function, there is a "random_rot"/"random_trans" variable at the end that you can set to the desired values, and then the object (or cameras) will always be moved/rotated in the specified way.
+
 To replicate previous camera setups, there is a function called "set_camera_extrinsics". Thi s function takes the real world position given by the baseline of the cameras and the holes where the slider is mounted, and replicates the position of the cameras and slider in Blender. The coordinate system of the holes has the origin in the upper right corner of the right side wall of the framework, with the x axis pointing to the left and the z axis pointing down. In order for the real world scenario to be replicated appropriately, make sure that the baseline of the cameras in the real world is centered on the slider.
+
 If you want to additionally adjust the light intensity, change the variables "light_01.data.energy" and "light_02.data.energy" in the script to the desired value.
 
-## Train the Yolov5 Network
+## Yolov5 Network
 
-There is a Jupyter Notebook provided called "yolov5_ultralytics.ipynb" where all the steps to train and test the fastest yolov5 model, called yolov5s, are implemented. To see how to properly train the yolov5 neural network go to the official yolov5 [Git repository](https://github.com/ultralytics/yolov5) from Ultralytics .
+There is a Jupyter Notebook provided called "yolov5_ultralytics.ipynb" where all the steps to train and test one of the fastest yolov5 models, called yolov5s, are implemented. To see how to properly train a yolov5 neural network go to the official [yolov5 Git repository from Ultralytics](https://github.com/ultralytics/yolov5).
+
+### Requirements
+In this notebook to train the network it is not necessary to set up the provided environment described in the [Setup section](#setup) as all the dependencies should be installed in the notebook.
+
+### Train the Network with the yolov5_ultralytics Notebook
+
+Here is a small introduction on how to train and test the yolov5s neural network on the previously rendered artificial images of the toy car from the [Blender section](#blender).
+
+1. First in the notebook the [yolov5 Git repository from Ultralytics](https://github.com/ultralytics/yolov5) is cloned and the required libraries are installed.
+2. After the environment has been cloned make sure to put the here provided "yolo_dataset.yaml" file into the cloned yolov5 Git folder on your pc.
+3. To Train your model run the Train Model section, for explanation of the added flags see the [yolov5 Git repository from Ultralytics](https://github.com/ultralytics/yolov5). This will train the yolov5s model and save the model to the yolov5/runs/train folder.
+4. To test the trained model run the Load Model section. This will load the trained weights and visualize the prediction of one of the artificial images of the toy car from the [Blender section](#blender).
 
 ## Calibrating the Cameras
 
