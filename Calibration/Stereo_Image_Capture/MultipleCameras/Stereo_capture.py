@@ -14,6 +14,7 @@ from PIL import Image,ImageTk
 
 save_img = False
 
+
 def To_hex_str(num):
     chaDic = {10: 'a', 11: 'b', 12: 'c', 13: 'd', 14: 'e', 15: 'f'}
     hexStr = ""
@@ -41,12 +42,12 @@ if __name__ == "__main__":
     nOpenDevSuccess = 0
     global devList
     global output_path
-    output_path = "C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/frames_stereo/"
+    output_path = ""
 
 
     #界面设计代码 | en:Interface design code is here
     window = tk.Tk()
-    window.title('MultipleCamerasDemo')
+    window.title('Stereo Capture')
     window.geometry('1330x1020')
     model_val = tk.StringVar()
     global triggercheck_val
@@ -290,11 +291,6 @@ if __name__ == "__main__":
     btn_close_device = tk.Button(window, text='Close Device', width=15, height=1, command = close_device)
     btn_close_device.place(x=160, y=100)
 
-    radio_mono = tk.Button(window, text='Mono Calibration',width=15, height=1, command=set_path_mono)
-    radio_mono.place(x=20, y=200)
-    radio_stereo = tk.Button(window, text='Stereo Calibrtaion', width=15, height=1, command=set_path_stereo)
-    radio_stereo.place(x=160, y=200)
-
     radio_continuous = tk.Radiobutton(window, text='Continuous', variable=model_val, value='continuous', width=15, height=1, command=set_triggermode)
     radio_continuous.place(x=20,y=150)
     radio_trigger = tk.Radiobutton(window, text='Trigger Mode', variable=model_val, value='triggermode', width=15, height=1, command=set_triggermode)
@@ -302,19 +298,22 @@ if __name__ == "__main__":
     model_val.set(1)
 
     btn_start_recording_img = tk.Button(window, text='Start Capture', width=15, height=1, command=start_save_jpg)
-    btn_start_recording_img.place(x=20, y=250)
+    btn_start_recording_img.place(x=20, y=200)
     btn_stop_recording_img = tk.Button(window, text='Stop Capture', width=15, height=1, command=stop_save_jpg)
-    btn_stop_recording_img.place(x=160, y=250)
+    btn_stop_recording_img.place(x=160, y=200)
+
+    radio_mono = tk.Button(window, text='Mono Calibration',width=15, height=1, command=set_path_mono)
+    radio_mono.place(x=20, y=250)
+    radio_stereo = tk.Button(window, text='Stereo Calibrtaion', width=15, height=1, command=set_path_stereo)
+    radio_stereo.place(x=160, y=250)
 
     btn_start_grabbing = tk.Button(window, text='Start Grabbing', width=15, height=1, command = start_grabbing ) # check the workthread in CamOperation_class.py, 
     btn_start_grabbing.place(x=20, y=300)
     btn_stop_grabbing = tk.Button(window, text='Stop Grabbing', width=15, height=1, command = stop_grabbing)
     btn_stop_grabbing.place(x=160, y=300)
 
-    checkbtn_trigger_software = tk.Checkbutton(window, text='Tigger by Software', variable=triggercheck_val, onvalue=1, offvalue=0)
-    checkbtn_trigger_software.place(x=20,y=350)
     btn_trigger_once = tk.Button(window, text='Trigger Once', width=15, height=1, command = trigger_once)
-    btn_trigger_once.place(x=160, y=350)
+    btn_trigger_once.place(x=20, y=350)
 
     btn_get_parameter = tk.Button(window, text='Get Parameter', width=15, height=1, command = get_parameter)
     btn_get_parameter.place(x=20, y=600)

@@ -12,6 +12,7 @@ To be able to run the python scripts and jupyter notebooks there is a conda envi
 # TODO
 changing Cameras in Blender (maybe create function)
 edit images
+describe dimensions of charuco/chessboard
 
 ## CAD
 
@@ -90,23 +91,42 @@ This Step is only necessary if you want to take way a). Make sure you know the p
 
 ### Step 1: Making images for each camera of the ChArUco marker board
 
-#### a) Run the "Mono_frameproduction.py" to create single image frames of the videos.
+#### a) Run the "Mono_frameproduction.py" to create single image frames of the videos
 1. Copy and paste the path of the location to which the videos were saved to into the script: <img> Remember that there are two cameras so you will have to run this script twice, once for the left and once for the right camera.
 2. After running it once for the left camera you can run it again for the right camera. For the right camera comment out the "file_left" and "cap" variable like this: <img> Also comment out the old path to where the frames were saved and uncomment the new path like this: <img>
 
-#### b) Run the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder.
+#### b) Run the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder
 Another possible way to create the ChArUco marker images is by using the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder of this respository. Here is a guide on how to save the images:
 
-1. a
+1. Make sure that the the path in the "set_path_mono" function is the path on your computer to the data/Calibration/frames_mono folder of this repository.
+2. Plug the cameras to the computer, first the left camera then the right camera
+3. Run the script and a Window should open called "Stereo Capture".
+4. Initialize and Open the cameras by pressing the "Initialization Cameras" and "Open Device" buttons.
+5. Check the "Continuous" box and click the "Start Grabbing" button. Now the two camera videos should appear on the right side. Make sure that the video capture of the camera which will be the left camera in the setup is also the left of the two windows, like this: <img> In the pd|z lab I signed the cameras with an L and R for left and right camera to remember later which camera should be on the left. If the left camera is not represented in the left window unplug both cameras and first plug in the left then the right camera.
+6. Place the ChArUco board so that it is seen by both cameras.
+7. Press the "Stop Grabbing" button. The video capture will stop.
+8. Uncheck the "Continuous" box by checking the "Trigger Mode" box.
+9. Click the "Start Capture" button, then the "Mono Calibration" button and finally the "Start Grabbing" button.
+10. If done correctly as described in the previous steps the ChArUco board should be visible to both cameras. Once the "Trigger Once" button is pressed a frame will be captured and displayed by both cameras. This frame will then be saved to either the data/Calibration/frames_mono/frames_left folder for the left camera or data/Calibration/frames_mono/frames_right for the right camera.
 
 ### Step 2: Run the "Mono_Calibration.py" script to get the intrinsics for both cameras.
 
+Make sure that the "path" variable in the "Mono_Calibration.py" script is the path on your computer to the data/Calibration folder of this repository, then run the script. This will calibrate and save the intrinsics of both of the cameras.
 
 ### Step 3: Run the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder.
 
+1. Make sure that the the path in the "set_path_stereo" function is the path on your computer to the data/Calibration/frames_stereo folder of this repository.
+2. Follow steps 2. - 5. of the [description for the mono calibration](# b Run the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder).
+3. Place the checker board so that it is visible to both cameras.
+4. Press the "Stop Grabbing" button. The video capture will stop.
+5. Uncheck the "Continuous" box by checking the "Trigger Mode" box.
+6. Click the "Start Capture" button, then the "Stereo Calibration" button and finally the "Start Grabbing" button.
+7. If done correctly as described in the previous steps the checker board should be visible to both cameras. Once the "Trigger Once" button is pressed a frame will be captured and displayed by both cameras. This frame will then be saved to either the data/Calibration/frames_stereo/frames_left folder for the left camera or data/Calibration/frames_stereo/frames_right for the right camera.
 
 ### Step 4: Execute the "Stereo_Calibration.py" script to get the camera extrinsics
 
+For this step the cameras have to be mounted how they will later be used. The left camera has to be on the left side if one looks into the framework.
+Make sure that the "path" variable in the "Stereo_Calibration.py" script is the path on your computer to the data/Calibration folder of this repository, then run the script. This will calibrate and save the extrinsics of your camera Setup through the previously calibrated intrinsics.
 
 ## Object Detection and Triangulation
 
