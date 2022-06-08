@@ -1,57 +1,61 @@
 # Bachelor Thesis
-By Nic Grogg
 
-## Introduction
+This GitHub repository complements the bachelor thesis of Nic Grogg. It contains the software part for building a stereo camera setup for object tracking. Below are step-by-step instructions for each subfolder on how to implement the provided scripts, and ways to customize the scripts for your own use if possible.
 
-This thesis is a complete pipeline from creating a hardware setup to detecting object with this setup. The main goal here was to...
+## Setup
 
-### Setup
-
-To be able to run the python scripts and jupyter notebooks there is a conda environment yaml file called "BachelorThesis.yml" to set up an environment, that should satisfy all requirements.
+To run the Python scripts and Jupyter notebooks, there is a yaml file for setting up a conda environment called "BachelorThesis.yml" which should meet all the requirements.
 
 # TODO
 changing Cameras in Blender (maybe create function)
 edit images
 describe dimensions of charuco/chessboard
 
-## CAD
-
-In the subfolder of the CAD there are ...
-
 ## Blender
 
-In this folder there are the files for the creation of artificial images to train our neural network. When the pipeline for this thesis was set out, the decision was made to try to detect a toy car that was previously used for another thesis at the pd|z lab. Thus the object to detect and make artificial images of is this toy car.
+The Blender subfolder contains the files for creating artificial images to train our neural network. When creating the pipeline for this thesis, it was decided to detect a toy car that had already been used for another thesis in the pd|z lab. Thus, the object to be recognized and of which artificial images are to be created is this toy car.
 
 ### Requirements
 
-This project was done with Blender version 3.1.2. No additional packages are needed for the Blender Python script, it should run as is.
+This project was implemented with Blender version 3.1.2. No additional packages are needed for the Blender Python script, it should run as is.
 
 ### Creating Artificial Images:
 
-As mentioned before the object I am trying to detect is a small toy car. Since the car was previously used in another Thesis at the pd|z lab there existed a 3D scan and a blender compatible object file of it which is stored in the Blender -> Objects -> Car sub folder. For the surrounding scene, the framework created in NX12, described in the [CAD section](#cad), is used.
+As mentioned before, the object to be recognized is a small toy car. Since the car was already used in another master thesis in the pd|z lab, a 3D scan and a blender-compatible object file already existed of it, which is stored in the Blender/Objects/Car subfolder. For the environment scene in the "CameraSetup.blend" file, a framework is used that was created in NX12 and is stored in the Blender/Objects/Setup subfolder.
 
-To make artificial images of the car in this scene, open the blender file "CameraSetup.blend" and go to the Scripting tab at the top: ![Blender_ScriptingTab](data/readme/Blender/ScriptingTab.jpg) This will open the python script in Blender where the amount of random camera position changes and the amount of images rendered for each position can be set with the "total_position_changes" and "total_render_count" variables: ![Blender_ChangesCount](data/readme/Blender/ChangesCount.jpg) With every new position change of the camera slider, the lighting is also randomly set, this gives more robustness to lighting differences in the real world. After setting the desired values, the script can be executed and the images for each object will be created and saved to the data/Blender/images folder. Further, the Blender python script outputs labels for each image as text files, which are saved in the data/Blender/labels folder. These text files are formatted so that the [yolov5 neural network](https://github.com/ultralytics/yolov5) can be trained on them. A text file contains the class of the object, the x and y coordinates of the center, the width and the height of the bounding box. In addition to these text files an additional text file which contains the possible classes is in the data/Blender/labels folder in order to properly train the [yolov5 neural network](https://github.com/ultralytics/yolov5). To visualize the bounding box, the "DrawBoundingBox.py" script is provided.
+To make artificial images of the car in this scene, open the Blender file "CameraSetup.blend" and go to the scripting tab at the top: ![Blender_ScriptingTab](data/readme/Blender/ScriptingTab.jpg)
+
+This will open the python script in Blender where the amount of random camera position changes and the amount of images rendered for each position can be set with the "total_position_changes" and "total_render_count" variables: ![Blender_ChangesCount](data/readme/Blender/ChangesCount.jpg)
+
+With each new change in the position of the camera slider, the lighting is also adjusted randomly, which provides greater robustness to lighting differences in the real world. After setting the desired values, the script can be executed and the images for each object will be created and saved in the data/Blender/images folder.
+
+Further, the Blender python script outputs labels for each image as text files, which are saved in the data/Blender/labels folder. These text files are formatted so that the [yolov5 neural network](https://github.com/ultralytics/yolov5) can be trained on them. A text file contains the class of the object, the x and y coordinates of the center, the width and the height of the bounding box. In addition to these text files an additional text file which contains the possible classes is in the data/Blender/labels folder in order to properly train the [yolov5 neural network](https://github.com/ultralytics/yolov5). To visualize the bounding box, the "DrawBoundingBox.py" script is provided.
 
 ### Changing Objects:
 
-If you want to create images for different objects, here's how to properly import them into the Blender scene and modify the Blender script:
+To create images for new different objects, here's how to properly import them into the Blender scene and modify the Blender script:
 
 1. First you need to create or download the new object as a Blender file or Blender compatible file.
 2. After the first step, open the Blender "CameraSetup.blend" file.
-3. Before importing the new object the old object, that was previously used for the detection, has to be deleted. You can see all objects currently present in your Blender scene in the top right corner in the "View Layer" window: ![Blender_ViewLayerWindow](data/readme/Blender/ViewLayerWindow.jpg) In this example this would be the car object. Right click on the object and delete it.
+3. Before importing the new object the old object, that was previously used for the detection, has to be deleted. In this example this would be the car object. Right click on the object name in the "View Layer" window and delete it. You can see all objects currently present in your Blender scene in the top right corner in the "View Layer" window: ![Blender_ViewLayerWindow](data/readme/Blender/ViewLayerWindow.jpg)
 4. There are two ways to add an object to the Blender file. a) You have saved the object as a Blender compatible file, but not as a Blender file itself, or b) You want to extract the object from another Blender file.
    - a) Go to File -> import -> "filetype" and select the object file you want to import.
-   - b) Go to File -> append -> "open the blender file" -> Object -> select the file you want to import.
+   - b) Go to File -> append -> "open the blender file of the new object" -> Object -> select the file you want to import.
 5. Sometimes the imported objects consist of several parts. For the script to work properly, the parts must be combined into one object. To do this, go to the Layout tab at the top and select each part with Shift + left click. After selecting all the parts of the object, press ctrl + j and they will be joined into one object.
-6. Now before running the script you need to change one thing in the Blender script. After adding the new object you see the name of the new object in the View Layer window mentioned before. In the script there is a section where the object to detect is loaded in. In this section change the name of the object of "bpy.data.objects('object_name')" to the name you see in the View Layer window: ![Blender_NameNewObject](data/readme/Blender/NameNewObject.jpg) If you run the script now, the images for the new object will be automatically rendered.
+6. Now before running the script you need to change one thing in the Blender script. After adding the new object you see the name of the new object in the View Layer window mentioned before. In the script there is a section where the object to detect is loaded in. In this section change the name of the object of "bpy.data.objects('object_name')" to the name you see in the View Layer window: ![Blender_NameNewObject](data/readme/Blender/NameNewObject.jpg)
+
+If you run the script now, the images for the new object will be automatically rendered.
 
 ### Additional Information
 
 There are a few more functions implemented in the Blender "CameraSetup.blend" file script. Since the script is well commented, I invite you to read through the script carefully and it should be self-explanatory what each part of the script does.
 
-At the moment any movement of the object and cameras is randomized so that the object is always seen by the camera, this randomization can easily be changed if you want specific positions of the object or cameras. In each rotation/translation function, there is a "random_rot"/"random_trans" variable at the end that you can set to the desired values, and then the object (or cameras) will always be moved/rotated in the specified way. An example where the "random_rot" could be modified in the blender script is in the object rotation function: !["random_rot"](data/readme/Blender/random_rot.jpg)
+At the moment any movement of the object and cameras is randomized so that the object is always seen by the camera, this randomization can easily be changed if you want specific positions of the object or cameras. In each rotation/translation function, there is a "random_rot"/"random_trans" variable at the end that you can set to the desired values, and then the object (or cameras) will always be moved/rotated in the specified way. An example where the "random_rot" could be modified in the blender script is in the object rotation function:
+!["random_rot"](data/readme/Blender/random_rot.jpg)
 
-To replicate previous camera setups, there is a function called "set_camera_extrinsics" uncomment it and comment out the "randomly_translate_slider" function to set a specific camera position. !["set_camera_extrinsics"](data/readme/Blender/set_camera_extrinsics.jpg) This function takes the real world position given by the baseline of the cameras and the holes where the slider is mounted, and replicates the position of the cameras and slider in Blender. The coordinate system of the holes has the origin in the upper right corner of the right side wall of the framework, with the x axis pointing to the left and the z axis pointing down. In order for the real world scenario to be replicated appropriately, make sure that the baseline of the cameras in the real world is centered on the slider.
+To replicate previous camera setups, there is a function called "set_camera_extrinsics" uncomment this function:
+!["set_camera_extrinsics"](data/readme/Blender/set_camera_extrinsics.jpg) and then comment out the "randomly_translate_slider" function to set a specific camera position:
+!["randomly_translate_slider"](data/readme/Blender/randomly_translate_slider.jpg) The "set_camera_extrinsics" function takes the real world position given by the baseline of the cameras and the holes where the slider is mounted, and replicates the position of the cameras and slider in Blender. The coordinate system of the holes has the origin in the upper right corner of the right side wall of the framework, with the x axis pointing to the left and the z axis pointing down. In order for the real world scenario to be replicated appropriately, make sure that the baseline of the cameras in the real world is centered on the slider.
 
 If you want to additionally adjust the light intensity, change the variables "light_01.data.energy" and "light_02.data.energy" in the script to the desired value.
 
