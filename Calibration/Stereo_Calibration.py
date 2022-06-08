@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 # Path to the calibration data folder
-path = 'C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/'
+path = 'C:/Users/nicgr/Documents/GitHub/BachelorThesis/data/Calibration/'
 
 # Matrices for undistortion of frames, which must be computed beforehand with the Mono_Calibration script
 # for both cameras

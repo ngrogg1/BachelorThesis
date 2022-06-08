@@ -9,7 +9,7 @@ cap = cv2.VideoCapture("E:/Camera_BA/Data/camera_left (G94153639)/"+file_left[-1
 # cap = cv2.VideoCapture("E:/Camera_BA/Data/camera_right (G88327234)/" + file_right[-1])
 
 # Path to the calibration data folder
-path = 'C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/'
+path = 'C:/Users/nicgr/Documents/GitHub/BachelorThesis/data/Calibration/'
 
 # Iterator to name the frames we want to save
 i = 1

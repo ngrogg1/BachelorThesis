@@ -19,7 +19,7 @@ allIds_right = []
 decimator = 1
 
 # Path to the calibration data folder
-path = 'C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/'
+path = 'C:/Users/nicgr/Documents/GitHub/BachelorThesis/data/Calibration/'
 
 # All images which are used for the calibration of a single camera
 images_left = os.listdir(path + 'frames_mono/frames_left')

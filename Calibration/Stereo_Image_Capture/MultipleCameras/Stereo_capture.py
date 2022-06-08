@@ -7,6 +7,7 @@ import tkinter.messagebox
 import tkinter as tk
 import sys, os
 from tkinter import ttk
+
 sys.path.append("../MvImport")
 from MvCameraControl_class import *
 from CamOperation_class import *
@@ -257,11 +258,11 @@ if __name__ == "__main__":
 
     def set_path_mono():
         global output_path
-        output_path = "C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/frames_mono/"
+        output_path = "C:/Users/nicgr/Documents/GitHub/BachelorThesis/data/Calibration/frames_mono/"
 
     def set_path_stereo():
         global output_path
-        output_path = "C:/Users/Nic/Documents/GitHub/BachelorThesis/data/Calibration/frames_stereo/"
+        output_path = "C:/Users/nicgr/Documents/GitHub/BachelorThesis/data/Calibration/frames_stereo/"
 
 
     text_number_of_devices = tk.Text(window,width=10, height=1)  # TK interface code, check https://docs.python.org/3/library/tkinter.html#a-hello-world-program if needed
