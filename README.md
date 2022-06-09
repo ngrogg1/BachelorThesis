@@ -10,7 +10,7 @@ For the cameras at the pd|z lab it is necessary to download the official softwar
 
 ### Anaconda environment
 
-To run the Python scripts and Jupyter notebooks, there is a yaml file for setting up a conda environment called "BachelorThesis.yml" which should meet all the requirements.
+To run the Python scripts and Jupyter Notebooks, there is a yaml file for setting up a conda environment called "BachelorThesis.yml" which should meet all the requirements.
 
 If the install of the environment with the "BachelorThesis.yml" file yields some problems here is a step by step guide to setup an anaconda environment with all the requirements on windows:
 
@@ -25,13 +25,12 @@ conda create -n myenv python==3.9
 conda activate myenv
 conda install jupyter notebook
 ```
-5. Start the yolov5 jupyter notebook "yolov5_ultralytics.ipynb" provided in this repository. For this open jupyter notebook with this command in the Anaconda Prompt:
+5. Start the yolov5 jupyter notebook "yolov5_ultralytics.ipynb" provided in this repository in the "yolov5_network" folder. For this open jupyter notebook with the following command in the Anaconda Prompt, which should open jupyter notebook in a webbrowser, where the "yolov5_ultralytics.ipynb" notebook can be opened:
 ```
 jupyter notebook
 ```
-With this a webbrowser should open and you can open the "yolov5_ultralytics.ipynb" in it.
 6. Run the "Install Requirements and Clone the Ultralytics yolov5 Respository" section to install pytorch, clone the yolov5 repository and install the requirements of the yolov5 repository.
-7. Close the notebook (Ctrl + c in the Anaconda Prompt) and install opencv through the Anaconda Prompt:
+7. Close the notebook (ctrl + c in the Anaconda Prompt) and install opencv through the Anaconda Prompt:
 ```
 pip install opencv-contrib-python
 ```
@@ -57,9 +56,11 @@ As mentioned before, the object to be recognized is a small toy car. Since the c
 
 To make artificial images of the car in this scene, open the Blender file "CameraSetup.blend" and go to the scripting tab at the top: ![Blender_ScriptingTab](data/readme/Blender/ScriptingTab.jpg)
 
-This will open the python script in Blender where the amount of random camera position changes and the amount of images rendered for each position can be set with the "total_position_changes" and "total_render_count" variables: ![Blender_ChangesCount](data/readme/Blender/ChangesCount.jpg)
+This will open the python script in Blender. Make sure that before you change anything, that the "output_path" variable is set to the "data" folder of this Git repository on your computer. ![Blender_outputpath](data/readme/Blender/outputpath.jpg)
 
-With each new change in the position of the camera slider, the lighting is also adjusted randomly, which provides greater robustness to lighting differences in the real world. After setting the desired values, the script can be executed and the images for each object will be created and saved in the data/Blender/images folder.
+In the scripting section the amount of random camera position changes and the amount of images rendered for each position can be set with the "total_position_changes" and "total_render_count" variables: ![Blender_ChangesCount](data/readme/Blender/ChangesCount.jpg)
+
+With each new change in the position of the camera slider, the lighting is also adjusted randomly, which provides greater robustness to lighting differences in the real world. After setting the desired values and the output path, the script can be executed and the images for each object will be created and saved in the data/Blender/images folder.
 
 Further, the Blender python script outputs labels for each image as text files, which are saved in the data/Blender/labels folder. These text files are formatted so that the [yolov5 neural network](https://github.com/ultralytics/yolov5) can be trained on them. A text file contains the class of the object, the x and y coordinates of the center, the width and the height of the bounding box. In addition to these text files an additional text file which contains the possible classes is in the data/Blender/labels folder in order to properly train the [yolov5 neural network](https://github.com/ultralytics/yolov5). To visualize the bounding box, the "DrawBoundingBox.py" script is provided.
 
@@ -89,11 +90,11 @@ To replicate previous camera setups, there is a function called "set_camera_extr
 !["set_camera_extrinsics"](data/readme/Blender/set_camera_extrinsics.jpg) and then comment out the "randomly_translate_slider" function to set a specific camera position:
 !["randomly_translate_slider"](data/readme/Blender/randomly_translate_slider.jpg) The "set_camera_extrinsics" function takes the real world position given by the baseline of the cameras and the holes where the slider is mounted, and replicates the position of the cameras and slider in Blender. The coordinate system of the holes has the origin in the upper right corner of the right side wall of the framework, with the x axis pointing to the left and the z axis pointing down. In order for the real world scenario to be replicated appropriately, make sure that the baseline of the cameras in the real world is centered on the slider.
 
-If you want to additionally adjust the light intensity, change the variables "light_01.data.energy" and "light_02.data.energy" in the script to the desired value.
+If you want to additionally adjust the light intensity, change the variables "light_01.data.energy" and "light_02.data.energy" in the script to the desired value: !["lighting"](data/readme/Blender/lighting.jpg)
 
 ## Yolov5 Network
 
-There is a Jupyter Notebook provided called "yolov5_ultralytics.ipynb" where all the steps to train and test one of the fastest yolov5 models, called yolov5s, are implemented. To see how to properly train a yolov5 neural network go to the official [yolov5 Git repository from Ultralytics](https://github.com/ultralytics/yolov5).
+In this folder there is a Jupyter Notebook provided called "yolov5_ultralytics.ipynb" where all the steps to train and test one of the fastest yolov5 models, called yolov5s, are implemented. To see how to properly train a yolov5 neural network go to the official [yolov5 Git repository from Ultralytics](https://github.com/ultralytics/yolov5).
 
 ### Requirements
 In this notebook to train the network it is not necessary to set up the provided environment described in the [Setup section](#setup) as all the dependencies should be installed in the notebook.
@@ -102,10 +103,10 @@ In this notebook to train the network it is not necessary to set up the provided
 
 Here is a small introduction on how to train and test the yolov5s neural network on the previously rendered artificial images of the toy car from the [Blender section](#blender).
 
-1. First in the notebook the [yolov5 Git repository from Ultralytics](https://github.com/ultralytics/yolov5) is cloned and the required libraries are installed.
-2. After the environment has been cloned make sure to put the here provided "yolo_dataset.yaml" file into the cloned yolov5 Git folder on your pc.
-3. To Train your model run the Train Model section, for explanation of the added flags see the [yolov5 Git repository from Ultralytics](https://github.com/ultralytics/yolov5). This will train the yolov5s model and save the model to the yolov5/runs/train folder.
-4. To test the trained model run the Load Model section. This will load the trained weights and visualize the prediction of one of the artificial images of the toy car from the [Blender section](#blender).
+1. First in the notebook in the "Install Requirements and Clone the Ultralytics yolov5 Respository" section the [yolov5 Git repository from Ultralytics](https://github.com/ultralytics/yolov5) is cloned and the required libraries are installed.
+2. After the environment has been cloned make sure to put the here provided "yolo_dataset.yaml" file (and "runs" folder if you want to test it on the toy car) into the cloned yolov5 Git folder on your pc.
+3. To Train your model run the "Train Model" section of the notebook, for explanation of the added flags see the [yolov5 Git repository from Ultralytics](https://github.com/ultralytics/yolov5). This will train the yolov5s model and save the model to the yolov5/runs/train folder.
+4. To test the trained model run the "Load Model" section of the notebook. This will load the trained weights and visualize the prediction of one of the artificial images of the toy car from the [Blender section](#blender).
 
 ## Calibrating the Cameras
 
@@ -118,12 +119,12 @@ There are two ways [a)](#step-0-save-a-video-with-both-cameras-separately-of-a-c
 This Step is only necessary if you want to take way a). Make sure you know the path to the location to which the application saves the video files to. This can be seen in the Settings -> Recording/Capturing -> Select Directory -> Saving Path.
 
 1. Run the "MVS.exe" file in the downloaded folder from the [Hikrobotics website](https://www.hikrobotics.com/en/machinevision/service/download?module=0), this should open their application
-2. Plug in the cameras with USB and rename them to camera_left and camera_right if it hasn't already been done.
-3. Connect the cameras to the application, for this hover over their name and press the connect button: <img>
-4. On the top left bar there is the option to go into multiple windows mode, select the 4 windows mode. Now four small windows should appear on the screen: <img>
+2. Plug in the cameras with USB and connect the cameras to the application, for this hover over their name and press the connect button: !["connecting_cameras"](data/readme/Calibration/connecting_camera.jpg)
+3. Rename them to camera_left and camera_right if it hasn't already been done. Make sure the left camera is also the camera with an L and the right camera the camera with an R written on it.
+4. On the top left bar there is the option to go into multiple windows mode, select the 4 windows mode. Now four small windows should appear on the screen: !["window_division"](data/readme/Calibration/window_division.png)
 5. If not automatically done drag and drop the cameras to one window each.
-6. Start grabbing the images by clicking the start grabbing button on the upper left corner: Make sure you know which camera is the left camera and which the right camera.
-7. Double click on one camera and start recording by pressing the record button. After you have stopped recording do the exact same thing with the other camera. Make sure to move and minimally rotate the ChArUco board around so that the whole image plane of the cameras have been covered at least once in the videos.
+6. Start grabbing the images by clicking the "Start Batch Acquisition" button on the upper left corner: !["start_batch_acquisition"](data/readme/Calibration/start_batch_acquisition.jpg) Make sure you know which camera is the left camera and which the right camera.
+7. Double click on one camera and start recording by pressing the record button: !["start_recording"](data/readme/Calibration/start_recording.jpg) After you have stopped recording do the exact same thing with the other camera. Make sure to move and minimally rotate the ChArUco board around so that the whole image plane of the cameras have been covered at least once in the videos.
 
 ### Step 1: Making images for each camera of the ChArUco marker board
 

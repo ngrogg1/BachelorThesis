@@ -1,0 +1,6 @@
+The YOLO anotation format represents the following values normalized in order:
+Class Number
+x centre coordinate
+y centre coordinate
+width
+height
