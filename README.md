@@ -25,7 +25,7 @@ conda create -n myenv python==3.9
 conda activate myenv
 conda install jupyter notebook
 ```
-5. Start the yolov5 jupyter notebook "yolov5_ultralytics.ipynb" provided in this repository in the "yolov5_network" folder. For this open jupyter notebook with the following command in the Anaconda Prompt, which should open jupyter notebook in a webbrowser, where the "yolov5_ultralytics.ipynb" notebook can be opened:
+5. Start the yolov5 jupyter notebook "yolov5_ultralytics.ipynb" provided in this repository in the "yolov5_network" folder. For this open jupyter notebook with the following command in the Anaconda Prompt, which should start jupyter notebook in a webbrowser, where the "yolov5_ultralytics.ipynb" notebook can be opened:
 ```
 jupyter notebook
 ```
