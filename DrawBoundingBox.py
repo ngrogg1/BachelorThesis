@@ -2,21 +2,21 @@ import pandas as pd
 import cv2
 import os
 
-length = len(os.listdir("data/labels/"))-1
+length = len(os.listdir("data/Blender/labels/"))-1
 i = 0
 k = 0
 
 while i < length/2:
-    data = pd.read_csv('data/labels/'+ f'car_{str(i+1).zfill(6)}' +"_left" + ".txt", delimiter=" ", header=None)
+    data = pd.read_csv('data/Blender/labels/'+ f'car_{str(i+1).zfill(6)}' +"_left" + ".txt", delimiter=" ", header=None)
     _, x_center_l, y_center_l, w1, h1 = data[0], data[1], data[2], data[3], data[4]
     k += 1
-    data = pd.read_csv('data/labels/' + f'car_{str(i + 1).zfill(6)}' + "_right" + ".txt", delimiter=" ", header=None)
+    data = pd.read_csv('data/Blender/labels/' + f'car_{str(i + 1).zfill(6)}' + "_right" + ".txt", delimiter=" ", header=None)
     _, x_center_r, y_center_r, w2, h2 = data[0], data[1], data[2], data[3], data[4]
     k += 1
 
     #Loading image:
-    img_l = cv2.imread('data/artificial_images/car_' + f'{str(i + 1).zfill(6)}' + '_left.png', -1)
-    img_r = cv2.imread('data/artificial_images/car_' + f'{str(i + 1).zfill(6)}' + '_right.png', -1)
+    img_l = cv2.imread('data/Blender/images/car_' + f'{str(i + 1).zfill(6)}' + '_left.png', -1)
+    img_r = cv2.imread('data/Blender/images/car_' + f'{str(i + 1).zfill(6)}' + '_right.png', -1)
     img_l = cv2.resize(img_l,(0,0), fx=0.5, fy=0.5)
     img_r = cv2.resize(img_r, (0, 0), fx=0.5, fy=0.5)
 
@@ -24,13 +24,11 @@ while i < length/2:
     x2_l = int(x1_l + w1 * img_l.shape[1])
     y1_l = int((y_center_l + h1/2) * img_l.shape[0])
     y2_l = int(y1_l - h1 * img_l.shape[0])
-    print(x1_l, y1_l, x2_l, y2_l)
 
     x1_r = int((x_center_r - w2/2) * img_r.shape[1])
     x2_r = int(x1_r + w2 * img_r.shape[1])
     y1_r = int((y_center_r + h2/2) * img_r.shape[0])
     y2_r = int(y1_r - h2 * img_r.shape[0])
-    print(x1_r, y1_r, x2_r, y2_r)
 
     # draw rectangles:
     img_l = cv2.rectangle(img_l, (x1_l,y1_l), (x2_l,y2_l), (255, 0, 0), 2) # blue
