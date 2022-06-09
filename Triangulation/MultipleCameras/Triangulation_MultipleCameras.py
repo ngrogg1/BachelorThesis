@@ -264,7 +264,9 @@ if __name__ == "__main__":
     P2 = mtx_right @ RT2  # projection matrix for C2
 
     # Load the yolov5 model which with custom pretrained weights, trained on the blender images
-    yolo = torch.hub.load('ultralytics/yolov5', 'custom', path='C:/Users/nicgr/Documents/GitHub/yolov5/runs/train/yolov5s/weights/last.pt', force_reload=True)
+    yolo = torch.hub.load('ultralytics/yolov5', 'custom',
+                          path='C:/Users/nicgr/Documents/GitHub/yolov5/runs/train/yolov5s/weights/last.pt',
+                          force_reload=True)
 
     # Set variables for the capturing of the frames of both cameras
     deviceList = MV_CC_DEVICE_INFO_LIST()
