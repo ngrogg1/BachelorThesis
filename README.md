@@ -35,7 +35,7 @@ To run the Python scripts and Jupyter Notebooks, there is a yaml file for settin
 
 If the install of the environment with the "BachelorThesis.yml" file yields some problems here is a step by step guide to setup an anaconda environment with all the requirements on windows:
 
-1. Download and install anaconda
+1. Download and install [anaconda](https://www.anaconda.com/)
 2. Open the Anaconda Prompt
 3. Create a new environment with python version 3.9:
 ```
@@ -64,7 +64,7 @@ The Blender subfolder contains the files for creating artificial images to train
 
 ### Requirements
 
-This project was implemented with Blender version 3.1.2. No additional packages are needed for the Blender Python script, it should run as is.
+This project was implemented with [Blender](https://www.blender.org/download/) version 3.1.2. No additional packages are needed for the Blender Python script, it should run as is.
 
 ### Creating Artificial Images:
 
