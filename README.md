@@ -118,7 +118,7 @@ There are two ways [a)](#step-0-save-a-video-with-both-cameras-separately-of-a-c
 
 This Step is only necessary if you want to take way a). Make sure you know the path to the location to which the application saves the video files to. This can be seen in the Settings -> Recording/Capturing -> Select Directory -> Saving Path.
 
-1. Run the "MVS.exe" file in the downloaded folder from the [Hikrobotics website](https://www.hikrobotics.com/en/machinevision/service/download?module=0), this should open their application
+1. Run the "MVS.exe" file in the downloaded folder from the [Hikrobotics website](https://www.hikrobotics.com/en/machinevision/service/download?module=0).
 2. Plug in the cameras with USB and connect the cameras to the application, for this hover over their name and press the connect button:
 !["connecting_cameras"](data/readme/Calibration/connecting_camera.jpg)
 3. Rename them to camera_left and camera_right if it hasn't already been done. Make sure the left camera is also the camera with an L and the right camera the camera with an R written on it.
@@ -131,7 +131,7 @@ This Step is only necessary if you want to take way a). Make sure you know the p
 
 #### a) Run the "Mono_frameproduction.py" to create single image frames of the videos
 1. Copy and paste the path of the location to which the videos were saved to into the script for both the left and right camera: !["videopath"](data/readme/Calibration/videopath.jpg) Also make sure that the "path" variable is set to the "data/Calibration" folder of this Git repository on your computer. ![mono_fp_path](data/readme/Calibration/mono_fp_path.jpg) Remember that there are two cameras so you will have to run this script twice, once for the left and once for the right camera.
-2. After running it once for the left camera you can run it again for the right camera. For the right camera comment out the "file_left" and "cap" variables and uncomment the "file_right" and "cap" like this: ![fp_rightcam](data/readme/Calibration/fp_rightcam.jpg) Also save the file to the "data/Calibration/frames_mono/frames_right" folder of this Git repository on your computer like this: ![fp_recomment](data/readme/Blender/fp_recomment.jpg)
+2. After running it once for the left camera you can run it again for the right camera. For the right camera comment out the "file_left" and "cap" variables and uncomment the "file_right" and "cap" like this: ![fp_rightcam](data/readme/Calibration/fp_rightcam.jpg) Also save the file to the "data/Calibration/frames_mono/frames_right" folder of this Git repository on your computer like this: ![fp_recomment](data/readme/Calibration/fp_recomment.jpg)
 
 #### b) Run the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder
 Another possible way to create the ChArUco marker images is by using the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder of this respository. Here is a guide on how to save the images:
