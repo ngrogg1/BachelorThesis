@@ -151,11 +151,11 @@ class CameraOperation():
         self.obj_cam.MV_CC_DestroyHandle()
         self.b_open_device = False
         self.b_start_grabbing = False
-        self.b_exit  = True
+        self.b_exit = True
 
     def Set_trigger_mode(self, strMode):
         if self.b_open_device:
-            if "continuous" == strMode: 
+            if "continuous" == strMode:
                 ret = self.obj_cam.MV_CC_SetEnumValueByString("TriggerMode", "Off")
                 if ret != 0:
                     return ret

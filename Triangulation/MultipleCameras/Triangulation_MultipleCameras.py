@@ -264,7 +264,7 @@ if __name__ == "__main__":
     P2 = mtx_right @ RT2  # projection matrix for C2
 
     # Load the yolov5 model which with custom pretrained weights, trained on the blender images
-    yolo = torch.hub.load('ultralytics/yolov5', 'custom', path='C:/Users/nicgr/Documents/GitHub/yolov5/runs/train/exp/weights/last.pt', force_reload=True)
+    yolo = torch.hub.load('ultralytics/yolov5', 'custom', path='C:/Users/nicgr/Documents/GitHub/yolov5/runs/train/yolov5s/weights/last.pt', force_reload=True)
 
     # Set variables for the capturing of the frames of both cameras
     deviceList = MV_CC_DEVICE_INFO_LIST()
@@ -273,7 +273,7 @@ if __name__ == "__main__":
     b_is_run = False
     nOpenDevSuccess = 0
     devList = []
-    model_val = "triggermode"
+    model_val = "continuous" # should be either "continuous" or "triggermode"
     triggercheck_val = 1
     exposure_time = 30000.0
     gain = 1.0
@@ -295,9 +295,9 @@ if __name__ == "__main__":
     deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devList = open_device(deviceList, obj_cam_operation,
                                                                                     b_is_run, nOpenDevSuccess, devList)
 
-    # Set the mode of grabbing frames to triggermode, this means that every time the "trigger_once" function is called
-    # it will grab a new frame
-    obj_cam_operation, nOpenDevSuccess = set_triggermode(obj_cam_operation, nOpenDevSuccess, model_val)
+    # # Set the mode of grabbing frames to triggermode, this means that every time the "trigger_once" function is called
+    # # it will grab a new frame
+    # obj_cam_operation, nOpenDevSuccess = set_triggermode(obj_cam_operation, nOpenDevSuccess, model_val)
 
     # Set the parameters of the camera to change the brightness etc.
     obj_cam_operation, nOpenDevSuccess = set_parameter(obj_cam_operation, nOpenDevSuccess, exposure_time, gain, frame_rate)
@@ -316,9 +316,9 @@ if __name__ == "__main__":
 
     # Start grabbing images and process them
     while True:
-        # grab one frame for both cameras (threads)
-        triggercheck_val, obj_cam_operation, nOpenDevSuccess = trigger_once(triggercheck_val, obj_cam_operation,
-                                                                            nOpenDevSuccess)
+        # # grab one frame for both cameras (threads) if the camera is in triggermode (if model_val == "triggermode")
+        # triggercheck_val, obj_cam_operation, nOpenDevSuccess = trigger_once(triggercheck_val, obj_cam_operation,
+        #                                                                     nOpenDevSuccess)
 
         # Wait until all threads have grabbed a frame and put it into the queue
         barrier.wait()
