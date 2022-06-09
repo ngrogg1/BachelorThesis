@@ -4,7 +4,39 @@ This GitHub repository complements the bachelor thesis of Nic Grogg. It contains
 
 ## Setup
 
+### Hikorobotics Software
+
+For the cameras at the pd|z lab it is necessary to download the official software in order for everything to work properly. Download the "Machine Vision Software MVS3.4.1" software from the [official Hikrobotics website](https://www.hikrobotics.com/en/machinevision/service/download?module=0) and install their application.
+
+### Anaconda environment
+
 To run the Python scripts and Jupyter notebooks, there is a yaml file for setting up a conda environment called "BachelorThesis.yml" which should meet all the requirements.
+
+If the install of the environment with the "BachelorThesis.yml" file yields some problems here is a step by step guide to setup an anaconda environment with all the requirements on windows:
+
+1. Download and install anaconda
+2. Open the Anaconda Prompt
+3. Create a new environment with python version 3.9:
+```
+conda create -n myenv python==3.9
+```
+4. Download jupyter notebook for this environment with 2 commands:
+```
+conda activate myenv
+conda install jupyter notebook
+```
+5. Start the yolov5 jupyter notebook "yolov5_ultralytics.ipynb" provided in this repository. For this open jupyter notebook with this command in the Anaconda Prompt:
+```
+jupyter notebook
+```
+With this a webbrowser should open and you can open the "yolov5_ultralytics.ipynb" in it.
+6. Run the "Install Requirements and Clone the Ultralytics yolov5 Respository" section to install pytorch, clone the yolov5 repository and install the requirements of the yolov5 repository.
+7. Close the notebook (Ctrl + c in the Anaconda Prompt) and install opencv through the Anaconda Prompt:
+```
+pip install opencv-contrib-python
+```
+
+This should fulfill all the necessary requirements of all the subfolders of this Git repository.
 
 # TODO
 changing Cameras in Blender (maybe create function)
