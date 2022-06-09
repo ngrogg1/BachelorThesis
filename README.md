@@ -136,7 +136,8 @@ Here is a small introduction on how to train and test the yolov5s neural network
 1. First in the notebook in the "Install Requirements and Clone the Ultralytics yolov5 Respository" section the [yolov5 Git repository from Ultralytics](https://github.com/ultralytics/yolov5) is cloned and the required libraries are installed.
 2. After the environment has been cloned make sure to put the here provided "yolo_dataset.yaml" file (and "runs" folder if you want to test it on the toy car) into the cloned yolov5 Git folder on your pc.
 3. To Train your model run the "Train Model" section of the notebook, for explanation of the added flags see the [yolov5 Git repository from Ultralytics](https://github.com/ultralytics/yolov5). This will train the yolov5s model and save the model to the yolov5/runs/train folder.
-4. To test the trained model run the "Load Model" section of the notebook. This will load the trained weights and visualize the prediction of one of the artificial images of the toy car from the [Blender section](#blender).
+4. To test the trained model run the "Load Model" section of the notebook. This will load the trained weights and visualize the prediction of one of the artificial images of the toy car from the [Blender section](#blender). When loading the weights, make sure that the "path" is set to the correct folder in the "yolov5/runs/train" folder in the yolov5 git repository on your computer:
+!["path_variable"](data/readme/yolov5/path_variable.jpg)
 
 ## Calibrating the Cameras
 
@@ -146,7 +147,8 @@ There are two ways [a)](#step-0-save-a-video-with-both-cameras-separately-of-a-c
 
 ### Step 0: Save a video with both cameras separately of a ChArUco marker board
 
-This Step is only necessary if you want to take way a). Make sure you know the path to the location to which the application saves the video files to. This can be seen in the Settings -> Recording/Capturing -> Select Directory -> Saving Path.
+This Step is only necessary if you want to take way a). Make sure you know the path to the location to which the application saves the video files to. This can be seen in the Settings -> Recording/Capturing -> Select Directory -> Saving Path. 
+Also, it is important that the dimensions of the ChArUco marker board in the real world match the dimensions of the board in the script, at the moment the markers have a length of 17.5 mm and the chessboard has a 5x7 layout with a single square length of 30 mm.
 
 1. Run the "MVS.exe" file in the downloaded folder from the [Hikrobotics website](https://www.hikrobotics.com/en/machinevision/service/download?module=0).
 2. Plug in the cameras with USB and connect the cameras to the application, for this hover over their name and press the connect button:
@@ -208,17 +210,19 @@ By running the script it will calibrate and save the intrinsics of both of the c
 
 ### Step 3: Run the "Stereo_capture.py" script in the Calibration/Stereo_Image_Capture/MultipleCameras folder.
 
-1. Make sure that the the path in the "set_path_stereo" function is the path on your computer to the data/Calibration/frames_stereo folder of this repository: !["set_path_stereo"](data/readme/Calibration/set_path_stereo.jpg)
+For this step, the cameras must be mounted the way they will be used later. The left camera must be on the left side when you stand in front of the framework and look into it. To achieve good results in the stereo calibration, a total of about 20 image pairs should be captured in which the checkerboard changes its position and angle so that almost every pixel of the camera plane has been filled at least once. 
+Again, it is important that the dimensions of the checkerboard in the real world match the dimensions of the checkerboard in the script. At the moment the checkerboard has a layout of 6x8 with a single square length of 30 mm.
+
+1. Make sure that the path in the "set_path_stereo" function is the path on your computer to the data/Calibration/frames_stereo folder of this repository: !["set_path_stereo"](data/readme/Calibration/set_path_stereo.jpg)
 2. Follow steps 2. - 5. of the [description for the mono calibration](#b-run-the-stereo_capturepy-script-in-the-calibrationstereo_image_capturemultiplecameras-folder).
-3. Place the checker board so that it is visible to both cameras.
+3. Place the checkerboard so that it is visible to both cameras.
 4. Press the "Stop Grabbing" button. The video capture will stop.
 5. Uncheck the "Continuous" box by checking the "Trigger Mode" box.
 6. Click the "Start Capture" button, then the "Stereo Calibration" button and finally the "Start Grabbing" button.
-7. If done correctly as described in the previous steps the checker board should be visible to both cameras. Once the "Trigger Once" button is pressed a frame will be captured and displayed by both cameras. This frame will then be saved to either the "data/Calibration/frames_stereo/frames_left" folder for the left camera or "data/Calibration/frames_stereo/frames_right" for the right camera.
+7. If done correctly as described in the previous steps the checkerboard should be visible to both cameras. Once the "Trigger Once" button is pressed a frame will be captured and displayed by both cameras. This frame will then be saved to either the "data/Calibration/frames_stereo/frames_left" folder for the left camera or "data/Calibration/frames_stereo/frames_right" for the right camera.
 
 ### Step 4: Execute the "Stereo_Calibration.py" script to get the camera extrinsics
 
-For this step, the cameras must be mounted the way they will be used later. The left camera must be on the left side when you stand in front of the framework and look into it.
 Make sure that the variable "path" in the "Stereo_Calibration.py" script is the path on your computer to the "data/Calibration" folder of this repository: 
 
 !["path_calibstereo"](data/readme/Calibration/path_calibstereo.jpg) 
