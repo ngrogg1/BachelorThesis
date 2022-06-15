@@ -13,6 +13,9 @@ import queue
 import numpy as np
 import torch
 import cv2
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 
 #C:/Users/Nic/Documents/GitHub/BachelorThesis/Triangulation/MvImport
 
@@ -222,11 +225,15 @@ def get_imagepoints(result_left, result_right):
 
     center_x_left = int(x_min_l + (x_max_l - x_min_l) / 2)
     center_y_left = int(y_min_l + (y_max_l - y_min_l) / 2)
+    width_left = int(x_max_l - x_min_l)
+    height_left = int(y_max_l - y_min_l)
 
     center_x_right = int(x_min_r + (x_max_r - x_min_r) / 2)
     center_y_right = int(y_min_r + (y_max_r - y_min_r) / 2)
+    width_right = int(x_max_r - x_min_r)
+    height_right = int(y_max_r - y_min_r)
 
-    return center_x_left, center_y_left, center_x_right, center_y_right
+    return center_x_left, center_y_left, center_x_right, center_y_right, width_left, height_left, width_right, height_right
 
 
 def resize_dispwind(img_shape):
@@ -316,6 +323,8 @@ if __name__ == "__main__":
     i = 1
     start = time.time()
 
+    aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_1000)
+
     # Start grabbing images and process them
     while True:
         # # grab one frame for both cameras (threads) if the camera is in triggermode (if model_val == "triggermode")
@@ -335,6 +344,10 @@ if __name__ == "__main__":
                     frame_left = image
                 else:
                     frame_right = image
+
+        frame_lefty = frame_left
+        corners, ids, _= cv2.aruco.detectMarkers(frame_lefty, aruco_dict)
+
 
         # Get the framesize for both frames (since its the same camera we only need one)
         img_size = frame_left.shape[:2]
@@ -365,7 +378,7 @@ if __name__ == "__main__":
             continue
 
         # If the object has been detected in both frames compute the center points of the boundingboxes
-        center_x_l, center_y_l, center_x_r, center_y_r = get_imagepoints(result_left, result_right)
+        center_x_l, center_y_l, center_x_r, center_y_r, width_l, height_l, width_r, height_r = get_imagepoints(result_left, result_right)
 
         # Triangulate the center of the bounding box
         points3d = cv2.triangulatePoints(P1, P2, (center_x_l, center_y_l), (center_x_r, center_y_r))
@@ -380,13 +393,34 @@ if __name__ == "__main__":
         # Draw a circle on the bounding box centers
         frame_left = np.squeeze(result_left.render())
         frame_left = cv2.circle(frame_left, (center_x_l, center_y_l), 10, (0, 0, 256), -1)
+        cv2.putText(frame_left, f'{round(depth[0], 3)} meters',
+                    (center_x_l - int(width_l/2), center_y_l + int(height_l/2) + 80),
+                    cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 6)
 
         frame_right = np.squeeze(result_right.render())
         frame_right = cv2.circle(frame_right, (center_x_r, center_y_r), 10, (0, 0, 256), -1)
+        cv2.putText(frame_right, f'{round(depth[0], 3)} meters',
+                    (center_x_r - int(width_r/2), center_y_r + int(height_r/2) + 80),
+                    cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 6)
+
+        if ids is not None:
+            rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners, 0.0185, mtx_left, dist_left)
+            cv2.aruco.drawDetectedMarkers(frame_lefty, corners, ids)
+            w1, h1 = int(img_size[0]/4), int(img_size[1]/4)
+            cv2.namedWindow("frame_lefty", cv2.WINDOW_NORMAL)
+            cv2.resizeWindow("frame_lefty", h1, w1)
+            cv2.putText(frame_lefty, f'{round(tvec[0][0][2], 3)} meters',
+                        (center_x_l - int(width_l / 2), center_y_l + int(height_l / 2) + 80),
+                        cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 6)
+            cv2.imshow("frame_lefty", frame_lefty)
+        #
+        #     cv2.imwrite('C:/Users/nicgr/OneDrive/Dokumente/ETH/Maschinenbau/Bachelorarbeit/LaTeX/img/depth_detection/' + 'distance_aruco' + str(i) + '.jpg', frame_lefty)
+        #     print()
 
         #resize_dispwind(img_size)
 
         cv2.imshow("frame_left", frame_left)
+        # cv2.imwrite('C:/Users/nicgr/OneDrive/Dokumente/ETH/Maschinenbau/Bachelorarbeit/LaTeX/img/depth_detection/' + 'distance_stereo' + str(i) + '.jpg', frame_left)
         cv2.imshow("frame_right", frame_right)
 
         if cv2.waitKey(1) == ord('q'):
