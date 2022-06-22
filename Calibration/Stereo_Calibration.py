@@ -83,7 +83,7 @@ for camera_left_frame_name, camera_right_frame_name in zip(images_left, images_r
         cv2.imshow(camera_right_frame_name, img_right)
 
     # Wait 1.5 seconds before closing the visualization
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(1500) & 0xFF == ord('q'):
         break
 
     # Close all windows
