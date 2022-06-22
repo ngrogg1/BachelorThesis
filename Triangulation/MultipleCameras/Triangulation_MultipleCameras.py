@@ -15,7 +15,7 @@ import torch
 import cv2
 import matplotlib
 matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
+import math
 
 #C:/Users/Nic/Documents/GitHub/BachelorThesis/Triangulation/MvImport
 
@@ -282,10 +282,10 @@ if __name__ == "__main__":
     b_is_run = False
     nOpenDevSuccess = 0
     devList = []
-    model_val = "continuous" # should be either "continuous" or "triggermode"
+    model_val = "triggermode" # should be either "continuous" or "triggermode"
     triggercheck_val = 1
-    exposure_time = 30000.0
-    gain = 1.0
+    exposure_time = 15000.0
+    gain = 2.0
     frame_rate = 60.0
 
     # Create barriers, locks and queue to communicate between different threads
@@ -304,9 +304,9 @@ if __name__ == "__main__":
     deviceList, obj_cam_operation, b_is_run, nOpenDevSuccess, devList = open_device(deviceList, obj_cam_operation,
                                                                                     b_is_run, nOpenDevSuccess, devList)
 
-    # # Set the mode of grabbing frames to triggermode, this means that every time the "trigger_once" function is called
-    # # it will grab a new frame
-    # obj_cam_operation, nOpenDevSuccess = set_triggermode(obj_cam_operation, nOpenDevSuccess, model_val)
+    # Set the mode of grabbing frames to triggermode, this means that every time the "trigger_once" function is called
+    # it will grab a new frame
+    obj_cam_operation, nOpenDevSuccess = set_triggermode(obj_cam_operation, nOpenDevSuccess, model_val)
 
     # Set the parameters of the camera to change the brightness etc.
     obj_cam_operation, nOpenDevSuccess = set_parameter(obj_cam_operation, nOpenDevSuccess, exposure_time, gain, frame_rate)
@@ -323,13 +323,11 @@ if __name__ == "__main__":
     i = 1
     start = time.time()
 
-    aruco_dict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_1000)
-
     # Start grabbing images and process them
     while True:
-        # # grab one frame for both cameras (threads) if the camera is in triggermode (if model_val == "triggermode")
-        # triggercheck_val, obj_cam_operation, nOpenDevSuccess = trigger_once(triggercheck_val, obj_cam_operation,
-        #                                                                     nOpenDevSuccess)
+        # grab one frame for both cameras (threads) if the camera is in triggermode (if model_val == "triggermode")
+        triggercheck_val, obj_cam_operation, nOpenDevSuccess = trigger_once(triggercheck_val, obj_cam_operation,
+                                                                            nOpenDevSuccess)
 
         # Wait until all threads have grabbed a frame and put it into the queue
         barrier.wait()
@@ -344,10 +342,6 @@ if __name__ == "__main__":
                     frame_left = image
                 else:
                     frame_right = image
-
-        frame_lefty = frame_left
-        corners, ids, _= cv2.aruco.detectMarkers(frame_lefty, aruco_dict)
-
 
         # Get the framesize for both frames (since its the same camera we only need one)
         img_size = frame_left.shape[:2]
@@ -384,43 +378,27 @@ if __name__ == "__main__":
         points3d = cv2.triangulatePoints(P1, P2, (center_x_l, center_y_l), (center_x_r, center_y_r))
 
         # Calculate the distance form the left camera coordinate system to the bounding box center
-        depth = points3d[2] / points3d[3]
-        x_distance = points3d[0] / points3d[3]
-        y_distance = points3d[1] / points3d[3]
+        x_distance = (points3d[0] / points3d[3])[0]
+        y_distance = (points3d[1] / points3d[3])[0]
+        z_distance = (points3d[2] / points3d[3])[0]
+        depth = math.sqrt(x_distance*x_distance + y_distance*y_distance + z_distance*z_distance)
 
-        print(f'Distance form the camera to the bounding box center: {round(depth[0], 3)} meters')
+        print(f'Distance form the camera to the bounding box center: {round(depth, 3)} meters')
 
         # Draw a circle on the bounding box centers
         frame_left = np.squeeze(result_left.render())
         frame_left = cv2.circle(frame_left, (center_x_l, center_y_l), 10, (0, 0, 256), -1)
-        cv2.putText(frame_left, f'{round(depth[0], 3)} meters',
+        cv2.putText(frame_left, f'{round(depth, 3)} meters',
                     (center_x_l - int(width_l/2), center_y_l + int(height_l/2) + 80),
                     cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 6)
 
         frame_right = np.squeeze(result_right.render())
         frame_right = cv2.circle(frame_right, (center_x_r, center_y_r), 10, (0, 0, 256), -1)
-        cv2.putText(frame_right, f'{round(depth[0], 3)} meters',
+        cv2.putText(frame_right, f'{round(depth, 3)} meters',
                     (center_x_r - int(width_r/2), center_y_r + int(height_r/2) + 80),
                     cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 6)
 
-        if ids is not None:
-            rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners, 0.0185, mtx_left, dist_left)
-            cv2.aruco.drawDetectedMarkers(frame_lefty, corners, ids)
-            w1, h1 = int(img_size[0]/4), int(img_size[1]/4)
-            cv2.namedWindow("frame_lefty", cv2.WINDOW_NORMAL)
-            cv2.resizeWindow("frame_lefty", h1, w1)
-            cv2.putText(frame_lefty, f'{round(tvec[0][0][2], 3)} meters',
-                        (center_x_l - int(width_l / 2), center_y_l + int(height_l / 2) + 80),
-                        cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 6)
-            cv2.imshow("frame_lefty", frame_lefty)
-        #
-        #     cv2.imwrite('C:/Users/nicgr/OneDrive/Dokumente/ETH/Maschinenbau/Bachelorarbeit/LaTeX/img/depth_detection/' + 'distance_aruco' + str(i) + '.jpg', frame_lefty)
-        #     print()
-
-        #resize_dispwind(img_size)
-
         cv2.imshow("frame_left", frame_left)
-        # cv2.imwrite('C:/Users/nicgr/OneDrive/Dokumente/ETH/Maschinenbau/Bachelorarbeit/LaTeX/img/depth_detection/' + 'distance_stereo' + str(i) + '.jpg', frame_left)
         cv2.imshow("frame_right", frame_right)
 
         if cv2.waitKey(1) == ord('q'):
@@ -428,6 +406,7 @@ if __name__ == "__main__":
                 print("FPS = ", round(i / (time.time() - start), 1))
             break
         i += 1
+
     nOpenDevSuccess, obj_cam_operation = stop_grabbing(nOpenDevSuccess, obj_cam_operation)
     b_is_run, obj_cam_operation, nOpenDevSuccess = close_device(b_is_run, obj_cam_operation, nOpenDevSuccess)
     cv2.destroyAllWindows()
