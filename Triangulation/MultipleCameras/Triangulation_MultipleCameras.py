@@ -381,22 +381,38 @@ if __name__ == "__main__":
         x_distance = (points3d[0] / points3d[3])[0]
         y_distance = (points3d[1] / points3d[3])[0]
         z_distance = (points3d[2] / points3d[3])[0]
-        depth = math.sqrt(x_distance*x_distance + y_distance*y_distance + z_distance*z_distance)
-
-        print(f'Distance form the camera to the bounding box center: {round(depth, 3)} meters')
+        # depth = math.sqrt(x_distance*x_distance + y_distance*y_distance + z_distance*z_distance)
+        #
+        # print(f'Distance form the camera to the bounding box center: {round(depth, 3)} meters')
 
         # Draw a circle on the bounding box centers
         frame_left = np.squeeze(result_left.render())
         frame_left = cv2.circle(frame_left, (center_x_l, center_y_l), 10, (0, 0, 256), -1)
-        cv2.putText(frame_left, f'{round(depth, 3)} meters',
-                    (center_x_l - int(width_l/2), center_y_l + int(height_l/2) + 80),
-                    cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 6)
+        cv2.putText(frame_left, f'X: {round(x_distance, 3)}',
+                    (center_x_l - int(width_l / 2), center_y_l + int(height_l / 2) + 80),
+                    cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 4)
+        cv2.putText(frame_left,
+                    f'Y: {round(y_distance, 3)}',
+                    (center_x_l - int(width_l / 2), center_y_l + int(height_l / 2) + 160),
+                    cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 4)
+        cv2.putText(frame_left,
+                    f'Z: {round(z_distance, 3)}',
+                    (center_x_l - int(width_l / 2), center_y_l + int(height_l / 2) + 240),
+                    cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 4)
 
         frame_right = np.squeeze(result_right.render())
         frame_right = cv2.circle(frame_right, (center_x_r, center_y_r), 10, (0, 0, 256), -1)
-        cv2.putText(frame_right, f'{round(depth, 3)} meters',
-                    (center_x_r - int(width_r/2), center_y_r + int(height_r/2) + 80),
-                    cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 6)
+        cv2.putText(frame_right, f'X: {round(x_distance, 3)}',
+                    (center_x_r - int(width_r / 2), center_y_r + int(height_r / 2) + 80),
+                    cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 4)
+        cv2.putText(frame_right,
+                    f'Y: {round(y_distance, 3)}',
+                    (center_x_r - int(width_r / 2), center_y_r + int(height_r / 2) + 160),
+                    cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 4)
+        cv2.putText(frame_right,
+                    f'Z: {round(z_distance, 3)}',
+                    (center_x_r - int(width_r / 2), center_y_r + int(height_r / 2) + 240),
+                    cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 4)
 
         cv2.imshow("frame_left", frame_left)
         cv2.imshow("frame_right", frame_right)
