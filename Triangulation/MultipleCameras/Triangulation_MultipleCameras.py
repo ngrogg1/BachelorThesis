@@ -282,7 +282,7 @@ if __name__ == "__main__":
     b_is_run = False
     nOpenDevSuccess = 0
     devList = []
-    model_val = "triggermode" # should be either "continuous" or "triggermode"
+    model_val = "triggermode"  # should be either "continuous" or "triggermode"
     triggercheck_val = 1
     exposure_time = 15000.0
     gain = 2.0
@@ -346,6 +346,7 @@ if __name__ == "__main__":
         # Get the framesize for both frames (since its the same camera we only need one)
         img_size = frame_left.shape[:2]
 
+        # # Rectify left and right image
         # frame_undistorted_left, frame_undistorted_right, P1, P2 = undistort_rectify_frames(mtx_left, dist_left, mtx_right,
         #                                                                                    dist_right, img_size, R, T,
         #                                                                                    frame_left, frame_right)
@@ -371,7 +372,7 @@ if __name__ == "__main__":
             i += 1
             continue
 
-        # If the object has been detected in both frames compute the center points of the boundingboxes
+        # If the object has been detected in both frames compute the center points of the bounding boxes
         center_x_l, center_y_l, center_x_r, center_y_r, width_l, height_l, width_r, height_r = get_imagepoints(result_left, result_right)
 
         # Triangulate the center of the bounding box
@@ -381,11 +382,8 @@ if __name__ == "__main__":
         x_distance = (points3d[0] / points3d[3])[0]
         y_distance = (points3d[1] / points3d[3])[0]
         z_distance = (points3d[2] / points3d[3])[0]
-        # depth = math.sqrt(x_distance*x_distance + y_distance*y_distance + z_distance*z_distance)
-        #
-        # print(f'Distance form the camera to the bounding box center: {round(depth, 3)} meters')
 
-        # Draw a circle on the bounding box centers
+        # Draw a circle on the bounding box centers and xyz coordinates under the bounding box in both image frames
         frame_left = np.squeeze(result_left.render())
         frame_left = cv2.circle(frame_left, (center_x_l, center_y_l), 10, (0, 0, 256), -1)
         cv2.putText(frame_left, f'X: {round(x_distance, 3)}',
